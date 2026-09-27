@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sheger Lounge — Food Menu</title>
+<!-- Edit dish names and prices below. Ask to reprint the PDF after you save. -->
+<style>
+  @font-face { font-family: "Palatino"; src: url("fonts/palatino.ttf") format("truetype"); font-weight: 400; }
+  @font-face { font-family: "Palatino"; src: url("fonts/palatino-bold.ttf") format("truetype"); font-weight: 700; }
+  @font-face { font-family: "Palatino"; src: url("fonts/palatino-italic.ttf") format("truetype"); font-weight: 400; font-style: italic; }
+  @font-face { font-family: "Garamond"; src: url("fonts/garamond.ttf") format("truetype"); font-weight: 400; }
+  @font-face { font-family: "Garamond"; src: url("fonts/garamond-bold.ttf") format("truetype"); font-weight: 700; }
+  @font-face { font-family: "Ebrima"; src: url("fonts/ebrima.ttf") format("truetype"); }
+  @font-face { font-family: "Gabriola"; src: url("fonts/gabriola.ttf") format("truetype"); }
+  @font-face { font-family: "Constantia"; src: url("fonts/constantia.ttf") format("truetype"); font-weight: 400; }
+  @font-face { font-family: "Constantia"; src: url("fonts/constantia-bold.ttf") format("truetype"); font-weight: 700; }
+  @font-face { font-family: "BodoniModa"; src: url("fonts/bodoni-italic.ttf") format("truetype"); font-weight: 700; font-style: italic; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #111; }
+  body { font-family: Constantia, Palatino, serif; color: #e6c97a; }
+
+  .sheet {
+    width: 210mm;
+    height: 297mm;
+    margin: 8mm auto;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background: #0c0c0c;
+    box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  }
+  .sheet.food { background: #0c0c0c url("food-bg.png") center top / cover no-repeat; }
+  .sheet.drinks { background: #0c0c0c url("drinks-bg.png") center bottom / cover no-repeat; }
+  .sheet:before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: radial-gradient(ellipse at 50% 46%, rgba(0,0,0,0.72) 36%, rgba(0,0,0,0.4) 68%, rgba(0,0,0,0.12) 100%);
+    pointer-events: none;
+  }
+
+  .frame { position: absolute; inset: 6mm; border: 1px solid #c6a15a; pointer-events: none; z-index: 2; }
+  .frame:before { content: ""; position: absolute; inset: 1.6mm; border: 0.4px solid rgba(198,161,90,.55); }
+  .corner { position: absolute; width: 16mm; height: 16mm; z-index: 3; pointer-events: none; }
+  .corner svg { width: 100%; height: 100%; }
+  .c1 { top: 6.5mm; left: 6.5mm; }
+  .c2 { top: 6.5mm; right: 6.5mm; transform: scaleX(-1); }
+  .c3 { bottom: 6.5mm; left: 6.5mm; transform: scaleY(-1); }
+  .c4 { bottom: 6.5mm; right: 6.5mm; transform: scale(-1); }
+
+  .fit {
+    position: relative; z-index: 1;
+    margin: 2mm 11mm 0;
+    display: flex;
+    flex-direction: column;
+  }
+  header.brand {
+    position: relative;
+    height: auto;
+    margin: 1mm 8mm 0;
+    padding: 2mm 2mm 1mm;
+    flex: 0 0 auto;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 1;
+  }
+  .mark {
+    position: relative;
+    width: 132mm;
+    margin: 0 auto;
+    height: auto;
+  }
+  .sheger {
+    font-family: BodoniModa, Palatino, serif;
+    font-size: 54px;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: 0.08em;
+    text-align: center;
+    color: #ff140c;
+    -webkit-text-stroke: 0.7px #111;
+    paint-order: stroke fill;
+    text-shadow: 2.5px 3px 0 #1a1a1a;
+    line-height: 0.8;
+    margin: 0;
+    padding: 0;
+  }
+  .sheger br, .lounge br { display: block; content: ""; margin: 0; }
+  .lounge {
+    position: relative;
+    display: block;
+    text-align: center;
+    margin: -7mm 0 0;
+    transform: rotate(-6deg);
+    font-family: Gabriola, cursive;
+    font-size: 42px;
+    color: #ffffff;
+    -webkit-text-stroke: 1.6px #111;
+    paint-order: stroke fill;
+    line-height: 0.7;
+    text-shadow: 0 1px 0 rgba(0,0,0,.25);
+    z-index: 2;
+  }
+  .logo-bar {
+    position: relative;
+    width: 108mm;
+    margin: 1.5mm auto 0;
+    height: 4.2mm;
+  }
+  .logo-bar .track {
+    position: absolute; left: 7mm; right: 0; top: 0.3mm;
+    height: 1.35mm; background: #2a2a2a;
+    box-shadow: 0 0 0 0.35px #c6a15a;
+    border-radius: 1mm;
+  }
+  .logo-bar .track:after {
+    content: "";
+    position: absolute; left: 0; right: 0; top: 1.7mm;
+    height: 1.15mm; background: #ef1b16;
+    border-radius: 1mm;
+  }
+  .logo-bar .pips {
+    position: absolute; left: 0; top: 0;
+    display: flex; gap: 1.15mm;
+    z-index: 2;
+  }
+  .logo-bar .pips i {
+    width: 2.4mm; height: 2.4mm; border-radius: 50%;
+    background: #ef1b16; display: block;
+    box-shadow: 0 0 0 0.45px #161616;
+  }
+  .badge {
+    position: absolute;
+    right: 1mm; top: 8mm;
+    width: 15mm; height: 15mm;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 32%, #ff4a3a, #d10c0c 62%, #9d0808);
+    border: 1.1px solid #f2c14b;
+    color: #ffe08a;
+    font-family: Gabriola, cursive;
+    font-size: 22px;
+    line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    transform: rotate(-12deg);
+    box-shadow: 1px 2px 0 #222;
+    z-index: 3;
+  }
+  .menu-title {
+    position: relative;
+    margin-top: 1.5mm;
+    text-align: center;
+    font-family: Constantia, Palatino, serif;
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: 0.42em;
+    color: #e6c97a;
+  }
+
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 8mm;
+    padding-top: 3.5mm;
+    align-items: stretch;
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.35mm;
+    min-height: 0;
+  }
+  h2 {
+    font-family: Constantia, Palatino, serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #e6c97a;
+    margin: 3.2mm 0 0.6mm;
+    padding-bottom: 1mm;
+    line-height: 1;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(230, 201, 122, 0.75);
+  }
+  h2:first-child { margin-top: 0; }
+  h2 span { font-family: Ebrima, sans-serif; font-weight: 700; font-size: 11px; color: #b9a06a; margin-left: 1.5mm; letter-spacing: 0; text-transform: none; }
+
+  .row { display: flex; align-items: center; gap: 2mm; margin: 0; height: 9.2mm; }
+  .row .name { font-family: Constantia, Palatino, serif; font-weight: 700; font-size: 15.5px; color: #f0d48a; white-space: nowrap; letter-spacing: 0.02em; }
+  .row .am { font-family: Ebrima, sans-serif; font-weight: 700; font-size: 11px; color: #a89060; margin-left: 1.2mm; white-space: nowrap; }
+  .row .dots { flex: 1; border-bottom: none; min-width: 4mm; }
+  .row .price { font-family: Palatino, serif; font-weight: 700; font-size: 15.5px; color: #e6c97a; width: 18mm; text-align: right; flex: 0 0 auto; }
+
+  .size { padding-left: 2.5mm; }
+  .size .name { font-family: Constantia, Palatino, serif; font-weight: 700; font-size: 12.5px; color: #d7c08a; font-style: italic; }
+  .food .row.size { height: 6mm; }
+  .food .size .name { font-size: 16.5px; }
+  .food .size .price { font-size: 16.5px; }
+  .photo-slot { height: 38mm; margin-top: 3mm; }
+
+  .feature {
+    margin-top: 1.2mm; padding: 0.4mm 2.2mm;
+    background: transparent;
+    border: 1px solid #c6a15a;
+  }
+  .feature .name { font-weight: 700; font-size: 14px; color: #f3dc9a; }
+  .feature .price { font-size: 14.5px; color: #f3dc9a; }
+
+  .fast {
+    flex: 0 0 auto;
+    margin: 6mm 0 0;
+    padding-top: 2.5mm;
+    border-top: 1px solid rgba(198,161,90,.8);
+  }
+  .fast h3 {
+    font-family: Constantia, Palatino, serif; text-align: center;
+    font-size: 13px; letter-spacing: .28em; color: #e6c97a; font-weight: 700;
+  }
+  .fast h3 span { font-family: Ebrima, sans-serif; letter-spacing: 0; font-weight: 700; font-size: 12px; color: #b9a06a; margin-left: 2mm; }
+  .fast .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8mm; margin-top: 1mm; }
+
+  footer.foot {
+    position: absolute; left: 11mm; right: 11mm; bottom: 7.5mm; z-index: 1;
+    display: flex; justify-content: space-between; align-items: center; gap: 3mm;
+    font-family: Palatino, serif; font-size: 10.5px; color: #e6c97a;
+    padding-top: 1.6mm;
+    border-top: 1px solid rgba(198,161,90,.75);
+  }
+  .food footer.foot { border-top: none; }
+  footer.foot .info { display: flex; flex-direction: column; gap: 1.2mm; min-width: 0; }
+  footer.foot .info span { display: flex; align-items: center; gap: 1.4mm; }
+  footer.foot svg { width: 3.8mm; height: 3.8mm; flex: 0 0 auto; fill: #e6c97a; }
+  footer.foot .am { font-family: Ebrima, sans-serif; font-size: 10.5px; color: #e6c97a; }
+  .tiktok { display: flex; align-items: center; gap: 2mm; flex: 0 0 auto; }
+  .tiktok img { width: 16mm; height: 16mm; object-fit: cover; background: #fff; border-radius: 1.5mm; border: 0.4px solid #c4a574; }
+  .tiktok b { display: block; font-family: Palatino, serif; font-size: 9px; letter-spacing: 0.14em; color: #e6c97a; }
+  .tiktok em { font-style: normal; font-family: Constantia, Palatino, serif; font-weight: 700; font-size: 12px; color: #f3dc9a; }
+
+  .drinks .row { height: 7.3mm; }
+  .drinks h2 { margin-top: 1.8mm; font-size: 14px; }
+  .drinks .main { padding-top: 6mm; }
+
+  @media print {
+    html, body { background: white; }
+    .sheet { margin: 0; box-shadow: none; page-break-after: always; }
+    .sheet:last-child { page-break-after: auto; }
+    @page { size: A4; margin: 0; }
+  }
+</style>
+</head>
+<body>
+<section class="sheet food">
+  <div class="frame"></div>
+  <div class="corner c1"><svg viewBox="0 0 36 36"><path d="M6 28 C6 12 14 6 30 6" fill="none" stroke="#e6c97a" stroke-width="1.2"/><path d="M10 28 C10 16 16 10 28 10" fill="none" stroke="#e6c97a" stroke-width="0.5"/><path d="M8 8 L14 8 L14 11 L11 11 L11 14 L8 14 Z" fill="none" stroke="#e6c97a" stroke-width="0.7"/></svg></div>
+  <div class="corner c2"><svg viewBox="0 0 36 36"><path d="M6 28 C6 12 14 6 30 6" fill="none" stroke="#e6c97a" stroke-width="1.2"/><path d="M10 28 C10 16 16 10 28 10" fill="none" stroke="#e6c97a" stroke-width="0.5"/><path d="M8 8 L14 8 L14 11 L11 11 L11 14 L8 14 Z" fill="none" stroke="#e6c97a" stroke-width="0.7"/></svg></div>
+  <div class="corner c3"><svg viewBox="0 0 36 36"><path d="M6 28 C6 12 14 6 30 6" fill="none" stroke="#e6c97a" stroke-width="1.2"/><path d="M10 28 C10 16 16 10 28 10" fill="none" stroke="#e6c97a" stroke-width="0.5"/><path d="M8 8 L14 8 L14 11 L11 11 L11 14 L8 14 Z" fill="none" stroke="#e6c97a" stroke-width="0.7"/></svg></div>
+  <div class="corner c4"><svg viewBox="0 0 36 36"><path d="M6 28 C6 12 14 6 30 6" fill="none" stroke="#e6c97a" stroke-width="1.2"/><path d="M10 28 C10 16 16 10 28 10" fill="none" stroke="#e6c97a" stroke-width="0.5"/><path d="M8 8 L14 8 L14 11 L11 11 L11 14 L8 14 Z" fill="none" stroke="#e6c97a" stroke-width="0.7"/></svg></div>
+
+  <div class="fit">
+  <header class="brand">
+    <div class="mark">
+      <div class="sheger"><br>SHEGER</div>
+      <div class="lounge"><br>Lounge</div>
+      <div class="logo-bar"><div class="track"></div><div class="pips"><i></i><i></i><i></i></div></div>
+    </div>
+    <div class="badge">No.2</div>
+    <div class="menu-title">FOOD MENU</div>
+  </header>
+
+  <div class="main">
+    <div class="col">
+      <h2>Kurt <span>ቁርጥ</span></h2>
+      <div class="row size"><span class="name">1 kg</span><span class="dots"></span><span class="price">3,950</span></div>
+      <div class="row size"><span class="name">1/2 kg</span><span class="dots"></span><span class="price">1,950</span></div>
+
+      <h2>Gas Light <span>ጋዝ ላይት</span></h2>
+      <div class="row size"><span class="name">1 kg</span><span class="dots"></span><span class="price">3,950</span></div>
+      <div class="row size"><span class="name">1/2 kg</span><span class="dots"></span><span class="price">1,950</span></div>
+      <div class="row size"><span class="name">1/4 kg</span><span class="dots"></span><span class="price">950</span></div>
+
+      <h2>Shekla <span>ሸክላ</span></h2>
+      <div class="row size"><span class="name">1 kg</span><span class="dots"></span><span class="price">3,950</span></div>
+      <div class="row size"><span class="name">1/2 kg</span><span class="dots"></span><span class="price">1,950</span></div>
+      <div class="row size"><span class="name">1/4 kg</span><span class="dots"></span><span class="price">1,100</span></div>
+
+      <h2>Senber <span>ሰንበር</span></h2>
+      <div class="row size"><span class="name">1 kg</span><span class="dots"></span><span class="price">1,500</span></div>
+      <div class="row size"><span class="name">1/2 kg</span><span class="dots"></span><span class="price">750</span></div>
+      <div class="row size"><span class="name">1/4 kg</span><span class="dots"></span><span class="price">375</span></div>
+
+      <h2>Emis Emis <span>እምስ እምስ</span></h2>
+      <div class="row size"><span class="name">1 kg</span><span class="dots"></span><span class="price">4,300</span></div>
+      <div class="row size"><span class="name">1/2 kg</span><span class="dots"></span><span class="price">2,150</span></div>
+      <div class="photo-slot"></div>
+    </div>
+
+    <div class="col">
+      <div class="row"><span class="name">Ariza <span class="am">አርዛ</span></span><span class="dots"></span><span class="price">1,150</span></div>
+      <div class="row"><span class="name">Zumbara <span class="am">ዙምብራ</span></span><span class="dots"></span><span class="price">1,050</span></div>
+      <div class="row"><span class="name">Normal Kitfo <span class="am">ኖርማል ክትፎ</span></span><span class="dots"></span><span class="price">1,650</span></div>
+      <div class="row"><span class="name">Special Kitfo <span class="am">ስፔሻል ክትፎ</span></span><span class="dots"></span><span class="price">2,675</span></div>
+      <div class="row"><span class="name">Scrambled Egg <span class="am">እንቁላል ፍርፍር</span></span><span class="dots"></span><span class="price">360</span></div>
+      <div class="row"><span class="name">Dulet <span class="am">ዱለት</span></span><span class="dots"></span><span class="price">510</span></div>
+      <div class="row"><span class="name">Tibs Firfir <span class="am">ጥብስ ፍርፍር</span></span><span class="dots"></span><span class="price">480</span></div>
+      <div class="row"><span class="name">Quanta Firfir <span class="am">ቋንጣ ፍርፍር</span></span><span class="dots"></span><span class="price">500</span></div>
+      <div class="row"><span class="name">Musina <span class="am">ሙስና</span></span><span class="dots"></span><span class="price">1,200</span></div>
+      <div class="row"><span class="name">Special Yetsom Firfir <span class="am">ስፔሻል የፆም ፍርፍር</span></span><span class="dots"></span><span class="price">500</span></div>
+      <div class="feature">
+        <div class="row"><span class="name">Sheger Special Combo <span class="am">ሸገር ስፔሻል ኮምቦ</span></span><span class="dots"></span><span class="price">5,500</span></div>
+      </div>
+      <div class="row"><span class="name">Yefisik Agelgil <span class="am">የፍስክ አገልግል</span></span><span class="dots"></span><span class="price">3,600</span></div>
+    </div>
+  </div>
+
+  <div class="fast">
+    <h3>FASTING <span>የፆም ምግቦች</span></h3>
+    <div class="cols">
+      <div>
+        <div class="row"><span class="name">Yetsom Combo <span class="am">የፆም ኮምቦ</span></span><span class="dots"></span><span class="price">850</span></div>
+        <div class="row"><span class="name">Atikilt Firfir <span class="am">አትክልት ፍርፍር</span></span><span class="dots"></span><span class="price">350</span></div>
+        <div class="row"><span class="name">Shiro Feses <span class="am">ሽሮ ፈሰስ</span></span><span class="dots"></span><span class="price">300</span></div>
+        <div class="row"><span class="name">Gomen Tibs <span class="am">ጎመን ጥብስ</span></span><span class="dots"></span><span class="price">350</span></div>
+      </div>
+      <div>
+        <div class="row"><span class="name">Tegabino <span class="am">ተጋቢኖ</span></span><span class="dots"></span><span class="price">350</span></div>
+        <div class="row"><span class="name">Beyeaynet <span class="am">በየአይነት</span></span><span class="dots"></span><span class="price">350</span></div>
+        <div class="row"><span class="name">Gomen Kitfo <span class="am">ጎመን ክትፎ</span></span><span class="dots"></span><span class="price">400</span></div>
+        <div class="row"><span class="name">Spring Roll <span class="am">ስፕሪንግ ሮል</span></span><span class="dots"></span><span class="price">350</span></div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+  <footer class="foot">
+    <div class="info">
+      <span><svg viewBox="0 0 24 24" fill="#4a1520"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg><span class="am">አድራሻ: ካሳንቺስ ዑራኤል ቤ/ክ ፊት ለፊት ስፖርት ፓርክ አጠገብ</span></span>
+      <span><svg viewBox="0 0 24 24" fill="#4a1520"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 7a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg>Delivery &nbsp; 251 911 59 70 29</span>
+    </div>
+    <div class="tiktok">
+      <img src="tiktok.png" alt="TikTok QR code">
+      <div><b>TIKTOK</b><em>@sheger_kurt</em></div>
+    </div>
+  </footer>
+</section>
+
+<section class="sheet drinks">
+  <div class="frame"></div>
+  <div class="corner c1"><svg viewBox="0 0 36 36"><path d="M6 28 C6 12 14 6 30 6" fill="none" stroke="#e6c97a" stroke-width="1.2"/><path d="M10 28 C10 16 16 10 28 10" fill="none" stroke="#e6c97a" stroke-width="0.5"/><path d="M8 8 L14 8 L14 11 L11 11 L11 14 L8 14 Z" fill="none" stroke="#e6c97a" stroke-width="0.7"/></svg></div>
+  <div class="corner c2"><svg viewBox="0 0 36 36"><path d="M6 28 C6 12 14 6 30 6" fill="none" stroke="#e6c97a" stroke-width="1.2"/><path d="M10 28 C10 16 16 10 28 10" fill="none" stroke="#e6c97a" stroke-width="0.5"/><path d="M8 8 L14 8 L14 11 L11 11 L11 14 L8 14 Z" fill="none" stroke="#e6c97a" stroke-width="0.7"/></svg></div>
+  <div class="corner c3"><svg viewBox="0 0 36 36"><path d="M6 28 C6 12 14 6 30 6" fill="none" stroke="#e6c97a" stroke-width="1.2"/><path d="M10 28 C10 16 16 10 28 10" fill="none" stroke="#e6c97a" stroke-width="0.5"/><path d="M8 8 L14 8 L14 11 L11 11 L11 14 L8 14 Z" fill="none" stroke="#e6c97a" stroke-width="0.7"/></svg></div>
+  <div class="corner c4"><svg viewBox="0 0 36 36"><path d="M6 28 C6 12 14 6 30 6" fill="none" stroke="#e6c97a" stroke-width="1.2"/><path d="M10 28 C10 16 16 10 28 10" fill="none" stroke="#e6c97a" stroke-width="0.5"/><path d="M8 8 L14 8 L14 11 L11 11 L11 14 L8 14 Z" fill="none" stroke="#e6c97a" stroke-width="0.7"/></svg></div>
+
+  <div class="fit">
+  <header class="brand">
+    <div class="mark">
+      <div class="sheger"><br>SHEGER</div>
+      <div class="lounge"><br>Lounge</div>
+      <div class="logo-bar"><div class="track"></div><div class="pips"><i></i><i></i><i></i></div></div>
+    </div>
+    <div class="badge">No.2</div>
+    <div class="menu-title">DRINKS MENU</div>
+  </header>
+
+  <div class="main">
+    <div class="col">
+      <h2>Black Label</h2>
+      <div class="row size"><span class="name">1/2 Bottle</span><span class="dots"></span><span class="price">8,549</span></div>
+      <div class="row size"><span class="name">Bottle</span><span class="dots"></span><span class="price">16,000</span></div>
+      <div class="row size"><span class="name">Double</span><span class="dots"></span><span class="price">1,030</span></div>
+      <div class="row size"><span class="name">Shot</span><span class="dots"></span><span class="price">515</span></div>
+
+      <h2>Gordon's</h2>
+      <div class="row size"><span class="name">Bottle</span><span class="dots"></span><span class="price">11,330</span></div>
+      <div class="row size"><span class="name">1/2 Bottle</span><span class="dots"></span><span class="price">5,871</span></div>
+      <div class="row size"><span class="name">Double</span><span class="dots"></span><span class="price">824</span></div>
+      <div class="row size"><span class="name">Shot</span><span class="dots"></span><span class="price">315</span></div>
+
+      <h2>Jägermeister</h2>
+      <div class="row size"><span class="name">Bottle</span><span class="dots"></span><span class="price">14,420</span></div>
+      <div class="row size"><span class="name">1/2 Bottle</span><span class="dots"></span><span class="price">7,000</span></div>
+      <div class="row size"><span class="name">Shot</span><span class="dots"></span><span class="price">515</span></div>
+      <div class="row size"><span class="name">Double</span><span class="dots"></span><span class="price">1,000</span></div>
+
+      <h2>Red Label</h2>
+      <div class="row size"><span class="name">Double</span><span class="dots"></span><span class="price">726</span></div>
+      <div class="row size"><span class="name">Shot</span><span class="dots"></span><span class="price">400</span></div>
+
+      <h2>Amarula</h2>
+      <div class="row size"><span class="name">Bottle</span><span class="dots"></span><span class="price">9,476</span></div>
+      <div class="row size"><span class="name">Double</span><span class="dots"></span><span class="price">800</span></div>
+      <div class="row size"><span class="name">Shot</span><span class="dots"></span><span class="price">412</span></div>
+    </div>
+
+    <div class="col">
+      <h2>Gold Label</h2>
+      <div class="row size"><span class="name">Bottle</span><span class="dots"></span><span class="price">25,750</span></div>
+
+      <h2>Acacia</h2>
+      <div class="row size"><span class="name">White</span><span class="dots"></span><span class="price">2,500</span></div>
+
+      <h2>Gebeta</h2>
+      <div class="row"><span class="name">Gebeta</span><span class="dots"></span><span class="price">2,060</span></div>
+
+      <div class="row"><span class="name">Axumite</span><span class="dots"></span><span class="price">1,100</span></div>
+      <div class="row"><span class="name">Kamila</span><span class="dots"></span><span class="price">2,060</span></div>
+      <div class="row"><span class="name">Red Bull</span><span class="dots"></span><span class="price">875</span></div>
+
+      <h2>Sambuca</h2>
+      <div class="row size"><span class="name">Shot</span><span class="dots"></span><span class="price">412</span></div>
+
+      <h2>Camino</h2>
+      <div class="row size"><span class="name">Bottle</span><span class="dots"></span><span class="price">10,506</span></div>
+      <div class="row size"><span class="name">Shot</span><span class="dots"></span><span class="price">566</span></div>
+
+      <h2>Absolut</h2>
+      <div class="row size"><span class="name">Bottle</span><span class="dots"></span><span class="price">7,700</span></div>
+
+      <h2>Soft Drinks</h2>
+      <div class="row"><span class="name">Soft drink</span><span class="dots"></span><span class="price">80</span></div>
+      <div class="row"><span class="name">Malt</span><span class="dots"></span><span class="price">125</span></div>
+      <div class="row"><span class="name">Normal beer</span><span class="dots"></span><span class="price">135</span></div>
+      <div class="row"><span class="name">Special beer</span><span class="dots"></span><span class="price">155</span></div>
+      <div class="row"><span class="name">1 Lt water</span><span class="dots"></span><span class="price">80</span></div>
+      <div class="row"><span class="name">1/2 Lt water</span><span class="dots"></span><span class="price">60</span></div>
+      <div class="row"><span class="name">Awash Tekeshimo</span><span class="dots"></span><span class="price">1,100</span></div>
+    </div>
+  </div>
+  </div>
+  <footer class="foot">
+    <div class="info">
+      <span><svg viewBox="0 0 24 24" fill="#4a1520"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg><span class="am">አድራሻ: ካሳንቺስ ዑራኤል ቤ/ክ ፊት ለፊት ስፖርት ፓርክ አጠገብ</span></span>
+      <span><svg viewBox="0 0 24 24" fill="#4a1520"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 7a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg>Delivery &nbsp; 251 911 59 70 29</span>
+    </div>
+    <div class="tiktok">
+      <img src="tiktok.png" alt="TikTok QR code">
+      <div><b>TIKTOK</b><em>@sheger_kurt</em></div>
+    </div>
+  </footer>
+</section>
+</body>
+</html>

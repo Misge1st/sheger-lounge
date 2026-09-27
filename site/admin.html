@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#070707">
+<title>Sheger Lounge — Staff</title>
+<style>
+  @font-face { font-family: "BodoniModa"; src: url("fonts/bodoni-italic.ttf") format("truetype"); font-weight: 700; font-style: italic; }
+  @font-face { font-family: "Gabriola"; src: url("fonts/gabriola.ttf") format("truetype"); }
+  @font-face { font-family: "Cormorant"; src: url("fonts/cormorant-500.ttf") format("truetype"); font-weight: 500; font-style: normal; }
+  @font-face { font-family: "Cormorant"; src: url("fonts/cormorant-500i.ttf") format("truetype"); font-weight: 500; font-style: italic; }
+  @font-face { font-family: "Cormorant"; src: url("fonts/cormorant-600.ttf") format("truetype"); font-weight: 600; font-style: normal; }
+  @font-face { font-family: "Cormorant"; src: url("fonts/cormorant-700.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+
+  :root {
+    --ink: #070707;
+    --gold: #d4af37;
+    --gold-bright: #f0d48a;
+    --gold-deep: #a8883a;
+    --gold-line: rgba(212, 175, 55, 0.4);
+    --gold-line-strong: rgba(212, 175, 55, 0.7);
+    --cream: #f6e7c1;
+    --red: #c8102e;
+    --red-deep: #9a0c22;
+    --mute: #b9a06a;
+    --text: #f3dc9a;
+    --radius: 4px;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Cormorant, Georgia, "Times New Roman", serif;
+    font-weight: 500;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(200, 16, 46, 0.16), transparent 42%),
+      radial-gradient(ellipse at 80% 60%, rgba(212, 175, 55, 0.05), transparent 40%),
+      #070707;
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  body:before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px;
+    mix-blend-mode: soft-light;
+  }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  a { color: var(--cream); }
+  ::selection { background: rgba(200, 16, 46, 0.35); color: var(--cream); }
+
+  #login, #app {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 16px 130px;
+    animation: rise 0.7s var(--ease) both;
+  }
+  #login[hidden], #app[hidden], .publish[hidden] { display: none; }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .brand {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .brand .sheger {
+    font-family: BodoniModa, Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: clamp(42px, 12vw, 64px);
+    line-height: 0.85;
+    letter-spacing: 0.08em;
+    color: #ff140c;
+    -webkit-text-stroke: 0.5px #1a0808;
+    paint-order: stroke fill;
+    text-shadow: 2px 3px 0 #120808;
+  }
+  .brand .lounge {
+    font-family: Gabriola, cursive;
+    font-size: clamp(28px, 7vw, 40px);
+    color: #fff;
+    line-height: 0.7;
+    margin-top: -2px;
+    transform: rotate(-5deg);
+    display: inline-block;
+  }
+  .brand .bar {
+    width: min(180px, 55%);
+    height: 6px;
+    margin: 14px auto 0;
+    position: relative;
+  }
+  .brand .bar i {
+    position: absolute; left: 0; top: 0;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--red);
+    box-shadow: 12px 0 0 var(--red), 24px 0 0 var(--red);
+  }
+  .brand .bar span {
+    position: absolute; left: 36px; right: 0; top: 2px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--red), var(--gold));
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+  .lede {
+    color: var(--mute);
+    margin: 0 0 22px;
+    line-height: 1.5;
+    font-size: 17px;
+    font-style: italic;
+  }
+
+  form.card, .card {
+    border: 1px solid var(--gold-line-strong);
+    border-radius: var(--radius);
+    padding: 20px;
+    background: linear-gradient(160deg, rgba(22, 18, 12, 0.85), rgba(8, 8, 8, 0.7));
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+  }
+  label.field { display: block; margin: 14px 0; }
+  label.field span, .check span {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--gold);
+    letter-spacing: 0.06em;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  input, textarea, select {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid var(--gold-line-strong);
+    border-radius: var(--radius);
+    background: rgba(16, 16, 16, 0.95);
+    padding: 10px 14px;
+    font-size: 17px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+  }
+  textarea { min-height: 88px; }
+  .check { display: flex; align-items: center; gap: 10px; margin: 12px 0; }
+  .check input { width: 22px; height: 22px; min-height: 0; accent-color: var(--gold); }
+  .error { color: #ffb4a8; min-height: 1.3em; font-size: 15px; }
+
+  button, .linkish {
+    min-height: 46px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #e0c06a, var(--gold-deep));
+    color: #1a1206;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: transform 0.2s var(--ease), filter 0.2s;
+  }
+  button:hover, .linkish:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  button.ghost, a.ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--gold-line-strong);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+  button.ghost:hover, a.ghost:hover { border-color: var(--gold); background: rgba(212, 175, 55, 0.08); }
+  button.warn {
+    background: transparent;
+    color: #ffb4a8;
+    border: 1px solid rgba(255, 180, 168, 0.7);
+  }
+  button.warn:hover { background: rgba(200, 16, 46, 0.12); }
+
+  .top, .tabs, .row-actions, .line, .publish {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .top { justify-content: space-between; margin-bottom: 18px; align-items: flex-start; }
+  .tabs {
+    margin: 8px 0 20px;
+    padding: 4px;
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.35);
+  }
+  .tabs button {
+    background: transparent;
+    color: var(--mute);
+    border: 0;
+    min-height: 42px;
+  }
+  .tabs button[aria-selected="true"] {
+    background: linear-gradient(180deg, #e0c06a, var(--gold-deep));
+    color: #1a1206;
+  }
+  h2 {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin: 26px 0 10px;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .row, form.editor {
+    border-bottom: 1px solid rgba(230, 201, 122, 0.14);
+    padding: 16px 0;
+  }
+  .row strong { display: block; font-size: 19px; color: var(--cream); }
+  .row p, .muted { color: var(--mute); margin: 4px 0 8px; line-height: 1.45; }
+  .off { color: #ffb4a8; font-size: 14px; }
+  .line input { flex: 1; min-width: 0; }
+  .preview {
+    width: 112px;
+    height: 88px;
+    object-fit: cover;
+    border-radius: 2px;
+    background: rgba(198, 161, 90, 0.12);
+    display: block;
+    margin-bottom: 10px;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+  }
+  .publish {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    background: rgba(8, 8, 8, 0.96);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--gold-line);
+    justify-content: space-between;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.4);
+  }
+  .publish p { margin: 0; flex: 1; color: var(--mute); font-size: 15px; }
+  button:disabled { opacity: 0.55; transform: none; }
+
+  .login-alert {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 20px;
+    padding: 16px 18px;
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, rgba(200, 16, 46, 0.22), rgba(0, 0, 0, 0.35));
+    color: var(--text);
+    box-shadow: 0 12px 32px rgba(200, 16, 46, 0.15);
+  }
+  .login-alert[hidden] { display: none; }
+  .login-alert b {
+    min-width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    background: linear-gradient(160deg, #e01838, var(--red-deep));
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border: 1px solid var(--gold);
+  }
+  .order-card {
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin: 14px 0;
+    background: linear-gradient(160deg, rgba(18, 14, 10, 0.8), rgba(8, 8, 8, 0.55));
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .order-card.new {
+    border-color: var(--gold);
+    box-shadow: inset 0 0 0 1px rgba(242, 193, 75, 0.2), 0 10px 28px rgba(0, 0, 0, 0.28);
+  }
+  .order-card h3 { margin: 0 0 8px; font-size: 20px; color: var(--cream); letter-spacing: 0.02em; }
+  .order-card .meta { color: var(--mute); margin: 0 0 12px; line-height: 1.5; }
+  .order-card ul { margin: 0 0 14px; padding-left: 18px; }
+  .order-card .money { display: grid; gap: 4px; margin-bottom: 14px; color: var(--gold-bright); }
+  .badge-tab { display: inline-flex; align-items: center; gap: 8px; }
+  .badge-tab i {
+    min-width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--red);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-style: normal;
+    font-size: 12px;
+    border: 1px solid var(--gold);
+  }
+  .badge-tab i[hidden] { display: none; }
+
+  #login-form button[type="submit"] {
+    width: 100%;
+    margin-top: 8px;
+    min-height: 50px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: 1px solid var(--gold);
+    background: linear-gradient(180deg, #e01838, var(--red-deep));
+    color: #fff;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+
+</head>
+<body>
+<section id="login">
+  <div class="brand" aria-hidden="true">
+    <div class="sheger">SHEGER</div>
+    <div class="lounge">Lounge</div>
+    <div class="bar"><i></i><span></span></div>
+  </div>
+  <h1>Staff</h1>
+  <p class="lede">Manage the menu, prices, and orders for Sheger Lounge.</p>
+  <div class="login-alert" id="login-alert" hidden>
+    <b id="login-count">0</b>
+    <div>
+      <strong id="login-alert-title">Active orders</strong>
+      <div class="muted" id="login-alert-text">Sign in to see them.</div>
+    </div>
+  </div>
+  <form class="card" id="login-form">
+    <label class="field">
+      <span>Password</span>
+      <input id="password" type="password" autocomplete="current-password" required>
+    </label>
+    <p class="error" id="login-error"></p>
+    <button type="submit">Enter</button>
+  </form>
+</section>
+
+<section id="app" hidden>
+  <div class="brand" aria-hidden="true">
+    <div class="sheger">SHEGER</div>
+    <div class="lounge">Lounge</div>
+    <div class="bar"><i></i><span></span></div>
+  </div>
+  <div class="top">
+    <h1>Staff</h1>
+    <div class="row-actions">
+      <a class="ghost" href="index.html">View menu</a>
+      <button class="ghost" type="button" id="logout">Log out</button>
+    </div>
+  </div>
+  <div class="tabs" role="tablist">
+    <button type="button" data-tab="orders" aria-selected="false" class="badge-tab">Orders <i id="orders-badge" hidden>0</i></button>
+    <button type="button" data-tab="food" aria-selected="true">Food</button>
+    <button type="button" data-tab="drinks" aria-selected="false">Drinks</button>
+    <button type="button" data-tab="lounge" aria-selected="false">Lounge</button>
+  </div>
+  <div id="panel"></div>
+</section>
+
+<div class="publish" id="publish-bar" hidden>
+  <p id="status">Customers see the menu after you press Publish.</p>
+  <button type="button" id="publish">Publish</button>
+</div>
+
+<script src="js/menu.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

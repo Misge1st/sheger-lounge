@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070707">
+<meta name="description" content="Sheger Lounge food and drinks menu. Tap a dish for the photo, price, and to leave a rating.">
+<title>Sheger Lounge — Menu</title>
+<style>
+  @font-face { font-family: "BodoniModa"; src: url("fonts/bodoni-italic.ttf") format("truetype"); font-weight: 700; font-style: italic; }
+  @font-face { font-family: "Gabriola"; src: url("fonts/gabriola.ttf") format("truetype"); }
+  @font-face { font-family: "Ebrima"; src: url("fonts/ebrima.ttf") format("truetype"); }
+  @font-face { font-family: "Cormorant"; src: url("fonts/cormorant-500.ttf") format("truetype"); font-weight: 500; font-style: normal; }
+  @font-face { font-family: "Cormorant"; src: url("fonts/cormorant-500i.ttf") format("truetype"); font-weight: 500; font-style: italic; }
+  @font-face { font-family: "Cormorant"; src: url("fonts/cormorant-600.ttf") format("truetype"); font-weight: 600; font-style: normal; }
+  @font-face { font-family: "Cormorant"; src: url("fonts/cormorant-700.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+
+  :root {
+    --ink: #070707;
+    --ink-soft: #0e0e0e;
+    --panel: rgba(10, 10, 10, 0.72);
+    --panel-solid: #121212;
+    --gold: #d4af37;
+    --gold-bright: #f0d48a;
+    --gold-deep: #a8883a;
+    --gold-line: rgba(212, 175, 55, 0.45);
+    --gold-line-strong: rgba(212, 175, 55, 0.75);
+    --cream: #f6e7c1;
+    --red: #c8102e;
+    --red-deep: #9a0c22;
+    --mute: #b9a06a;
+    --text: #f3dc9a;
+    --radius: 4px;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: Cormorant, Georgia, "Times New Roman", serif;
+    font-weight: 500;
+    background: var(--ink);
+    color: var(--text);
+    min-height: 100vh;
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  ::selection { background: rgba(200, 16, 46, 0.35); color: var(--cream); }
+
+  .scene {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: #0c0c0c url("food-bg.png") center / cover no-repeat;
+    transform: scale(1.02);
+  }
+  body.drinks .scene { background-image: url("drinks-bg.png"); }
+  .scene:before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 18%, rgba(200, 16, 46, 0.14) 0%, transparent 42%),
+      radial-gradient(ellipse at 50% 42%, rgba(0, 0, 0, 0.72) 12%, rgba(0, 0, 0, 0.42) 55%, rgba(0, 0, 0, 0.12) 100%);
+  }
+  .scene:after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.07;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px;
+    mix-blend-mode: soft-light;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding-bottom: 118px;
+    animation: rise 0.9s var(--ease) both;
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes brandIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes barGrow {
+    from { transform: scaleX(0); opacity: 0; }
+    to { transform: scaleX(1); opacity: 1; }
+  }
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+
+  header.hero {
+    position: relative;
+    min-height: min(46vh, 340px);
+    padding: 44px 20px 32px;
+    text-align: center;
+    background: transparent;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  header.hero > * { position: relative; z-index: 1; }
+  .sheger {
+    font-family: BodoniModa, Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: clamp(56px, 15vw, 92px);
+    line-height: 0.82;
+    letter-spacing: 0.08em;
+    color: #ff140c;
+    -webkit-text-stroke: 0.5px #1a0808;
+    paint-order: stroke fill;
+    text-shadow:
+      0 0 40px rgba(200, 16, 46, 0.25),
+      2px 3px 0 #120808;
+    animation: brandIn 1s var(--ease) both;
+  }
+  .lounge {
+    font-family: Gabriola, cursive;
+    font-size: clamp(42px, 10vw, 60px);
+    color: #fffef8;
+    line-height: 0.72;
+    margin-top: -2px;
+    transform: rotate(-5deg);
+    -webkit-text-stroke: 0.5px #111;
+    paint-order: stroke fill;
+    text-shadow: 0 10px 32px rgba(0, 0, 0, 0.55), 0 0 24px rgba(255, 255, 255, 0.08);
+    animation: brandIn 1.1s var(--ease) 0.08s both;
+  }
+  .tagline {
+    margin-top: 20px;
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 14px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+    animation: brandIn 1.2s var(--ease) 0.16s both;
+  }
+  .bar {
+    width: min(260px, 72%);
+    height: 8px;
+    margin: 18px auto 0;
+    position: relative;
+    transform-origin: center;
+    animation: barGrow 0.9s var(--ease) 0.25s both;
+  }
+  .bar i {
+    position: absolute; left: 0; top: 0;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--red);
+    box-shadow: 14px 0 0 var(--red), 28px 0 0 var(--red);
+  }
+  .bar span {
+    position: absolute; left: 42px; right: 0; top: 3px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--red), var(--gold));
+  }
+  .badge {
+    position: absolute;
+    right: 22px;
+    top: 22px;
+    z-index: 2;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(circle at 35% 30%, #ff5a48, var(--red) 58%, var(--red-deep));
+    border: 1px solid var(--gold);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    color: var(--gold-bright);
+    font-family: Gabriola, cursive;
+    font-size: 20px;
+    transform: rotate(-12deg);
+    animation: brandIn 1s var(--ease) 0.2s both;
+  }
+
+  .dock {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: rgba(8, 8, 8, 0.88);
+    backdrop-filter: blur(14px) saturate(1.1);
+    border-bottom: 1px solid var(--gold-line);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  }
+  nav.tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.28);
+  }
+  nav.tabs button {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    color: var(--mute);
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    font-size: 14px;
+    padding: 16px 8px;
+    cursor: pointer;
+    transition: color 0.25s var(--ease), background 0.25s var(--ease);
+  }
+  nav.tabs button:hover { color: var(--gold-bright); }
+  nav.tabs button[aria-selected="true"] {
+    color: var(--cream);
+    background: linear-gradient(180deg, transparent, rgba(212, 175, 55, 0.08));
+    box-shadow: inset 0 -2px 0 var(--gold);
+  }
+
+  main { padding: 10px 16px 28px; }
+  section[hidden], h2[hidden],
+  .plate[hidden], .feature[hidden], .drink[hidden], .cat-block[hidden],
+  .item[hidden], .size[hidden], nav.cats[hidden], .search-status[hidden],
+  form.search .clear[hidden] { display: none; }
+
+  form.search {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px 0;
+  }
+  form.search input {
+    flex: 1;
+    min-width: 0;
+    min-height: 46px;
+    border: 1px solid var(--gold-line-strong);
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.55);
+    color: var(--cream);
+    font-family: Cormorant, Georgia, serif;
+    font-size: 17px;
+    font-weight: 600;
+    padding: 8px 18px;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  form.search input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+  }
+  form.search input::placeholder { color: #8f7850; font-weight: 500; font-style: italic; }
+  form.search button {
+    flex: 0 0 auto;
+    min-height: 46px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #e0c06a, var(--gold-deep));
+    color: #1a1206;
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: transform 0.2s var(--ease), filter 0.2s;
+  }
+  form.search button:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  form.search .clear {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--gold-line-strong);
+    padding: 8px 14px;
+  }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+  .search-status {
+    margin: 14px 0 0;
+    color: var(--gold-bright);
+    font-size: 16px;
+  }
+  .search-status button {
+    margin-left: 8px;
+    min-height: 40px;
+    border: 1px solid var(--gold-line-strong);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text);
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+
+  h2 {
+    margin: 28px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.55);
+    font-family: Cormorant, Georgia, serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  h2 span, .am {
+    font-family: Ebrima, sans-serif;
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--mute);
+    margin-left: 6px;
+  }
+
+  .item, .size {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid rgba(230, 201, 122, 0.1);
+    flex-wrap: wrap;
+  }
+  .yours { flex: 1 0 100%; margin: 0; font-size: 13px; color: var(--gold); font-style: italic; }
+  .tag-off { margin-left: 6px; font-size: 12px; letter-spacing: 0.04em; color: #8f7850; text-transform: none; }
+  .unavailable { opacity: 0.42; }
+  .cat-block { scroll-margin-top: 180px; }
+
+  nav.cats {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 12px 16px 14px;
+    scrollbar-width: none;
+  }
+  nav.cats::-webkit-scrollbar { display: none; }
+  nav.cats button {
+    flex: 0 0 auto;
+    min-height: 40px;
+    border: 1px solid var(--gold-line-strong);
+    background: transparent;
+    color: var(--text);
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  nav.cats button:hover { border-color: var(--gold); color: var(--cream); }
+  nav.cats button[aria-current="true"] {
+    background: linear-gradient(180deg, #e0c06a, var(--gold-deep));
+    color: #1a1206;
+    border-color: transparent;
+  }
+
+  .stars { display: flex; gap: 4px; justify-content: flex-start; }
+  .stars button {
+    border: 0;
+    background: transparent;
+    color: #4a3a22;
+    font-size: 34px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 6px;
+    min-width: 44px;
+    min-height: 44px;
+    transition: color 0.2s, transform 0.2s;
+  }
+  .stars button:hover { transform: scale(1.08); }
+  .stars button.on { color: var(--gold); }
+  .rate-box { text-align: left; margin-top: 14px; }
+  .rate-box + .rate-box { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--gold-line); }
+  .rate-box h3 { font-size: 15px; letter-spacing: 0.08em; color: var(--text); font-weight: 700; margin-bottom: 6px; }
+  .rate-box textarea {
+    width: 100%;
+    margin-top: 8px;
+    min-height: 68px;
+    resize: vertical;
+    border: 1px solid var(--gold-line-strong);
+    border-radius: var(--radius);
+    background: #141414;
+    color: var(--text);
+    font-family: Cormorant, Georgia, serif;
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+  .rate-box .send {
+    margin-top: 8px;
+    border: 1px solid var(--gold);
+    background: linear-gradient(180deg, #e01838, var(--red-deep));
+    color: #fff;
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    padding: 10px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+  }
+  .rate-box .thanks { margin-top: 8px; color: var(--gold-bright); font-size: 14px; }
+  .notes { list-style: none; margin-top: 8px; }
+  .notes li { font-size: 14px; color: var(--text); padding: 6px 0; border-bottom: 1px solid rgba(230, 201, 122, 0.12); }
+  .notes .who { color: var(--gold); margin-right: 6px; }
+
+  .item .name, .size .name {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--cream);
+    letter-spacing: 0.01em;
+  }
+  .price {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--gold);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .plate {
+    display: grid;
+    grid-template-columns: 112px 1fr;
+    gap: 14px;
+    align-items: center;
+    margin: 18px 0 6px;
+    padding: 10px;
+    background: linear-gradient(145deg, rgba(20, 16, 10, 0.55), rgba(8, 8, 8, 0.25));
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    border-radius: var(--radius);
+    transition: border-color 0.25s, transform 0.25s var(--ease), box-shadow 0.25s;
+  }
+  .plate:hover {
+    border-color: rgba(212, 175, 55, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+    transform: translateY(-1px);
+  }
+  .plate > img, .plate > .no-photo {
+    width: 112px;
+    height: 88px;
+    object-fit: cover;
+    border-radius: 2px;
+    display: block;
+    cursor: pointer;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  }
+  .plate > .no-photo { cursor: default; background: rgba(198, 161, 90, 0.12); }
+  .phone[hidden] { display: none; }
+  a.staff {
+    color: #8f7850;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  a.staff:hover { color: var(--gold); }
+  .plate h2 { margin: 0 0 4px; border: 0; padding: 0; }
+  .plate .size { padding-left: 0; }
+  .feature .plate { margin: 0; background: transparent; border: 0; padding: 0; box-shadow: none; }
+  .feature .plate:hover { transform: none; }
+  .size .name { font-size: 16px; font-style: italic; color: #d7c08a; font-weight: 600; }
+  .feature {
+    margin-top: 10px;
+    padding: 8px 12px 12px;
+    border: 1px solid rgba(212, 175, 55, 0.55);
+    background: linear-gradient(180deg, rgba(212, 175, 55, 0.06), transparent);
+    border-radius: var(--radius);
+  }
+  .fast-label {
+    margin-top: 32px;
+    text-align: center;
+    letter-spacing: 0.32em;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+    animation: shimmer 3.5s ease-in-out infinite;
+  }
+
+  footer.foot {
+    margin: 36px 16px 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--gold-line-strong);
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  footer.foot p { font-size: 14px; line-height: 1.55; color: var(--gold-bright); }
+  footer.foot a { color: var(--cream); }
+  .addr {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+    text-decoration: none;
+    color: var(--gold-bright);
+  }
+  .addr svg { width: 18px; height: 18px; flex: 0 0 auto; margin-top: 2px; fill: var(--gold); }
+  .addr .am { margin-left: 0; }
+  .tik { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--cream); }
+  .tik img {
+    width: 64px;
+    height: 64px;
+    background: #fff;
+    border-radius: 2px;
+    border: 1px solid var(--gold-line);
+  }
+  .tik b { display: block; font-size: 11px; letter-spacing: 0.18em; color: var(--gold); }
+  .tik em { font-style: normal; font-family: Cormorant, Georgia, serif; font-weight: 700; }
+
+  .call {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 6;
+    display: flex; justify-content: center; gap: 10px;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    background: linear-gradient(transparent, rgba(7, 7, 7, 0.96) 28%);
+  }
+  .call a {
+    display: block;
+    flex: 1;
+    max-width: 360px;
+    text-align: center;
+    text-decoration: none;
+    background: linear-gradient(180deg, #e01838, var(--red-deep));
+    color: #fff;
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    font-size: 15px;
+    padding: 14px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--gold);
+    box-shadow: 0 8px 24px rgba(200, 16, 46, 0.28);
+    transition: transform 0.2s var(--ease), filter 0.2s;
+  }
+  .call a:hover { filter: brightness(1.06); transform: translateY(-1px); }
+
+  .add-btn {
+    margin-left: auto;
+    min-height: 36px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #e0c06a, var(--gold-deep));
+    color: #1a1206;
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: transform 0.2s, filter 0.2s;
+  }
+  .add-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+  .cart-fab {
+    position: fixed;
+    right: 16px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    z-index: 7;
+    min-width: 68px;
+    min-height: 68px;
+    border: 1px solid var(--gold);
+    border-radius: 999px;
+    background: linear-gradient(160deg, #e01838, var(--red-deep));
+    color: #fff;
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 4px rgba(200, 16, 46, 0.12);
+    cursor: pointer;
+    transition: transform 0.2s var(--ease);
+  }
+  .cart-fab:hover { transform: scale(1.04); }
+  .cart-fab[hidden] { display: none; }
+  .cart-fab b {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--gold);
+    color: #1a1206;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  .cart-toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(156px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 8;
+    background: rgba(10, 10, 10, 0.96);
+    border: 1px solid var(--gold-line-strong);
+    color: var(--cream);
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  }
+  .cart-toast[hidden] { display: none; }
+
+  .checkout {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(200, 16, 46, 0.12), transparent 45%),
+      rgba(5, 5, 5, 0.97);
+    overflow: auto;
+    padding: 20px 16px 48px;
+    animation: rise 0.35s var(--ease) both;
+  }
+  .checkout[hidden] { display: none; }
+  .checkout-card {
+    max-width: 640px;
+    margin: 0 auto;
+    color: var(--text);
+    padding: 8px 4px 24px;
+  }
+  .checkout-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--gold-line);
+  }
+  .checkout h2 {
+    margin: 28px 0 12px;
+    letter-spacing: 0.18em;
+  }
+  .order-line {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(230, 201, 122, 0.14);
+  }
+  .order-line > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .qty { display: flex; gap: 8px; align-items: center; }
+  .qty button, .checkout .ghost, #checkout-close, #checkout-back, #use-location, #place-order {
+    min-height: 42px;
+    border-radius: 999px;
+    border: 1px solid var(--gold-line-strong);
+    background: transparent;
+    color: var(--text);
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .qty button:hover, #checkout-back:hover { background: rgba(212, 175, 55, 0.12); }
+  #place-order {
+    width: 100%;
+    margin-top: 18px;
+    min-height: 52px;
+    border: 1px solid var(--gold);
+    background: linear-gradient(180deg, #e01838, var(--red-deep));
+    color: #fff;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 15px;
+    box-shadow: 0 10px 28px rgba(200, 16, 46, 0.28);
+  }
+  #order-totals div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+  }
+  #order-totals .grand {
+    border-top: 1px solid var(--gold-line-strong);
+    margin-top: 8px;
+    padding-top: 14px;
+    font-size: 20px;
+    color: var(--cream);
+  }
+  .empty-order { color: var(--mute); font-style: italic; }
+  #delivery-form label { display: block; margin: 14px 0; }
+  #delivery-form span {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--gold);
+    letter-spacing: 0.06em;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  #delivery-form input, #delivery-form textarea {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid var(--gold-line-strong);
+    border-radius: var(--radius);
+    background: rgba(18, 18, 18, 0.9);
+    color: var(--cream);
+    font-family: Cormorant, Georgia, serif;
+    font-size: 17px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  #delivery-form input:focus, #delivery-form textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+  }
+  #delivery-form textarea { min-height: 88px; }
+  .pay { display: grid; gap: 10px; margin: 12px 0; }
+  .pay label {
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+    margin: 0 !important;
+    padding: 12px 14px;
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    border-radius: var(--radius);
+    background: rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .pay label:has(input:checked) {
+    border-color: var(--gold);
+    background: rgba(212, 175, 55, 0.08);
+  }
+  .pay input { width: 20px; min-height: 0; accent-color: var(--gold); }
+  .loc-box {
+    margin: 16px 0;
+    padding: 16px;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: var(--radius);
+    background: rgba(0, 0, 0, 0.32);
+  }
+  .loc-box #use-location {
+    width: 100%;
+    min-height: 48px;
+    margin-top: 10px;
+    border: 0;
+    background: linear-gradient(180deg, #e0c06a, var(--gold-deep));
+    color: #1a1206;
+    letter-spacing: 0.04em;
+  }
+  .loc-box.ready { border-color: var(--gold); box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.2); }
+  #map-link { display: inline-block; margin-top: 10px; color: var(--cream); }
+  #map-link[hidden] { display: none; }
+  #map-label, #order-status { color: var(--mute); margin: 8px 0; line-height: 1.45; }
+
+  .viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background: rgba(0, 0, 0, 0.94);
+    animation: rise 0.3s var(--ease) both;
+  }
+  .viewer[hidden] { display: none; }
+  .viewer-card {
+    position: relative;
+    width: min(520px, 100%);
+    text-align: center;
+    background: linear-gradient(180deg, #14110c, #0c0c0c);
+    border: 1px solid var(--gold-line-strong);
+    border-radius: var(--radius);
+    padding: 48px 18px 18px;
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  }
+  .viewer-x {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    background: #1a1a1a;
+    color: var(--text);
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .viewer-info .item, .viewer-info .size { border-bottom-color: rgba(230, 201, 122, 0.22); }
+  .viewer-info h2 { text-align: left; margin-top: 0; }
+  .viewer-card img {
+    width: 100%;
+    max-height: 52vh;
+    object-fit: contain;
+    margin-top: 14px;
+    margin-bottom: 2px;
+    display: block;
+    border-radius: 2px;
+    background: #111;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+  }
+  .viewer-back {
+    display: block;
+    margin: 16px auto 0;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--text);
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 12px 24px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .thanks-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(6px);
+    animation: rise 0.3s var(--ease) both;
+  }
+  .thanks-overlay[hidden] { display: none; }
+  .thanks-dialog {
+    width: min(400px, 100%);
+    text-align: center;
+    padding: 36px 28px 28px;
+    border: 1px solid var(--gold-line-strong);
+    border-radius: var(--radius);
+    background: linear-gradient(165deg, #16120c, #0c0c0c);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(212, 175, 55, 0.08);
+  }
+  .thanks-dialog .mark {
+    font-family: BodoniModa, Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: 0.08em;
+    color: #ff140c;
+    margin-bottom: 18px;
+  }
+  .thanks-dialog h2 {
+    margin: 0 0 10px;
+    padding: 0;
+    border: 0;
+    font-size: 28px;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: var(--cream);
+    font-weight: 700;
+  }
+  .thanks-dialog p {
+    margin: 0 0 24px;
+    color: var(--gold);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .thanks-dialog .ok {
+    min-width: 140px;
+    min-height: 48px;
+    border: 1px solid var(--gold);
+    border-radius: 999px;
+    background: linear-gradient(180deg, #e01838, var(--red-deep));
+    color: #fff;
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+
+</head>
+<body>
+<div class="scene" aria-hidden="true"></div>
+<form name="food-rating" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input name="bot-field">
+  <input name="dish">
+  <input name="stars">
+  <textarea name="feedback"></textarea>
+</form>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="badge">No.2</div>
+    <div class="sheger">SHEGER</div>
+    <div class="lounge">Lounge</div>
+    <p class="tagline">Premium Ethiopian dining</p>
+    <div class="bar"><i></i><span></span></div>
+  </header>
+
+  <div class="dock">
+    <nav class="tabs" role="tablist">
+      <button type="button" role="tab" id="tab-food" aria-controls="food" aria-selected="true">FOOD</button>
+      <button type="button" role="tab" id="tab-drinks" aria-controls="drinks" aria-selected="false">DRINKS</button>
+    </nav>
+    <form class="search" id="menu-search" role="search">
+      <label class="sr" for="q">Search the menu</label>
+      <input id="q" type="search" placeholder="Search food or drinks" autocomplete="off" enterkeyhint="search">
+      <button class="clear" type="button" id="clear-search" hidden>Clear</button>
+      <button type="submit">Search</button>
+    </form>
+    <nav class="cats" id="cats" aria-label="Menu categories"></nav>
+  </div>
+
+  <main>
+    <p class="search-status" id="search-status" hidden></p>
+    <section id="food" role="tabpanel" aria-labelledby="tab-food"></section>
+    <section id="drinks" role="tabpanel" aria-labelledby="tab-drinks" hidden></section>
+  </main>
+
+  <footer class="foot">
+    <p>
+      <a class="addr" href="https://maps.app.goo.gl/qZxyPVoW5e4ZdFVg8?g_st=ic" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>
+        <span class="am">አድራሻ: ካሳንቺስ ዑራኤል ቤ/ክ ፊት ለፊት ስፖርት ፓርክ አጠገብ</span>
+      </a>
+      Delivery <a class="phone" data-slot="0" href="tel:+251911597029">251 911 59 70 29</a><br>
+      <a class="phone" data-slot="1" href="tel:+251909051024">0909 05 10 24</a><br>
+      Prices in birr<br>
+      <a class="staff" href="admin.html">Staff</a>
+    </p>
+    <a class="tik" href="https://www.tiktok.com/@sheger_kurt" target="_blank" rel="noopener">
+      <img src="tiktok.png" alt="TikTok QR code">
+      <span><b>TIKTOK</b><em>@sheger_kurt</em></span>
+    </a>
+  </footer>
+</div>
+
+<div class="call">
+  <a class="phone" data-slot="0" href="tel:+251911597029">251 911 59 70 29</a>
+  <a class="phone" data-slot="1" href="tel:+251909051024">0909 05 10 24</a>
+</div>
+
+<button class="cart-fab" id="cart-fab" type="button" hidden>Order <b id="cart-count">0</b></button>
+<p class="cart-toast" id="cart-toast" hidden></p>
+
+<div class="checkout" id="checkout" hidden>
+  <div class="checkout-card">
+    <div class="checkout-top">
+      <h2 style="margin:0;border:0;padding:0;">Your order</h2>
+      <button type="button" id="checkout-close" aria-label="Close">×</button>
+    </div>
+    <div id="order-lines"></div>
+    <div id="order-totals"></div>
+
+    <h2>Delivery information</h2>
+    <form id="delivery-form">
+      <label><span>Full name</span><input name="name" required autocomplete="name"></label>
+      <label><span>Phone number</span><input name="phone" required inputmode="tel" autocomplete="tel"></label>
+      <label><span>City</span><input name="city" required value="Addis Ababa"></label>
+      <label><span>Area / Sub-city</span><input name="area" required></label>
+      <label><span>Delivery address</span><textarea name="address" required placeholder="Building, street, or landmark"></textarea></label>
+      <div class="loc-box">
+        <p id="map-label">Allow your current location so the driver can find you.</p>
+        <button type="button" id="use-location">Share my current location</button>
+        <a id="map-link" href="#" target="_blank" rel="noopener" hidden>Open my location</a>
+      </div>
+      <label><span>Delivery instructions (optional)</span><textarea name="note" maxlength="300"></textarea></label>
+
+      <h2>Payment method</h2>
+      <div class="pay">
+        <label><input type="radio" name="payment" value="cash" checked> Cash on Delivery</label>
+        <label><input type="radio" name="payment" value="mobile"> Mobile Payment</label>
+        <label><input type="radio" name="payment" value="other"> Other</label>
+      </div>
+      <p id="order-status"></p>
+      <button type="submit" id="place-order">Place order</button>
+    </form>
+    <button type="button" id="checkout-back" style="margin-top:12px;">Back to menu</button>
+  </div>
+</div>
+
+<div class="viewer" id="viewer" hidden>
+  <div class="viewer-card">
+    <button class="viewer-x" type="button" aria-label="Close">×</button>
+    <div class="viewer-info" id="viewer-info"></div>
+    <img id="viewer-img" alt="">
+    <div id="viewer-rate"></div>
+    <button class="viewer-back" type="button">Back to menu</button>
+  </div>
+</div>
+
+<div class="thanks-overlay" id="thanks-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="thanks-title" aria-describedby="thanks-detail">
+  <div class="thanks-dialog">
+    <div class="mark" aria-hidden="true">SHEGER</div>
+    <h2 id="thanks-title">Thank you so much</h2>
+    <p id="thanks-detail"></p>
+    <button type="button" class="ok" id="thanks-ok">OK</button>
+  </div>
+</div>
+
+<script src="js/menu.js"></script>
+<script src="js/order.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
