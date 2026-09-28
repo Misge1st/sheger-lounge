@@ -519,18 +519,73 @@
     return data && Array.isArray(data.food) && Array.isArray(data.drinks);
   }
 
-  function paintHome() {
+  var homeMediaFilter = "all";
+
+  function openHomeLightbox(item) {
+    var box = document.getElementById("home-lightbox");
+    var media = document.getElementById("home-lightbox-media");
+    var caption = document.getElementById("home-lightbox-caption");
+    media.innerHTML = "";
+    if (item.type === "video") {
+      var video = document.createElement("video");
+      video.src = item.src;
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      media.appendChild(video);
+    } else {
+      var img = document.createElement("img");
+      img.src = item.src;
+      img.alt = item.caption || "Sheger Lounge";
+      media.appendChild(img);
+    }
+    caption.textContent = item.caption || "";
+    caption.hidden = !item.caption;
+    box.hidden = false;
+  }
+
+  function closeHomeLightbox() {
+    var box = document.getElementById("home-lightbox");
+    var media = document.getElementById("home-lightbox-media");
+    box.hidden = true;
+    media.innerHTML = "";
+  }
+
+  function applyHomeFilter() {
     var gallery = document.getElementById("home-gallery");
+    var empty = document.getElementById("home-gallery-empty");
     if (!gallery) return;
+    var shown = 0;
+    gallery.querySelectorAll("figure").forEach(function (figure) {
+      var type = figure.dataset.type || "photo";
+      var on = homeMediaFilter === "all" || homeMediaFilter === type;
+      figure.hidden = !on;
+      if (on) shown += 1;
+    });
+    if (empty) empty.hidden = shown > 0;
+  }
+
+  function paintHome() {
+    var shell = document.getElementById("home-media");
+    var gallery = document.getElementById("home-gallery");
+    var empty = document.getElementById("home-gallery-empty");
+    if (!gallery || !shell) return;
     gallery.innerHTML = "";
     var rows = (MENU.home && MENU.home.media) || [];
+    shell.hidden = !rows.length;
+    if (!rows.length) return;
     rows.forEach(function (item) {
       if (!item || !item.src) return;
       var figure = document.createElement("figure");
+      figure.dataset.type = item.type === "video" ? "video" : "photo";
+      var kind = document.createElement("span");
+      kind.className = "kind";
+      kind.textContent = figure.dataset.type === "video" ? "Video" : "Photo";
+      figure.appendChild(kind);
       if (item.type === "video") {
         var video = document.createElement("video");
         video.src = item.src;
-        video.controls = true;
+        video.muted = true;
         video.playsInline = true;
         video.preload = "metadata";
         figure.appendChild(video);
@@ -546,9 +601,29 @@
         cap.textContent = item.caption;
         figure.appendChild(cap);
       }
+      figure.addEventListener("click", function () { openHomeLightbox(item); });
       gallery.appendChild(figure);
     });
+    applyHomeFilter();
+    if (empty) empty.hidden = gallery.querySelectorAll("figure:not([hidden])").length > 0;
   }
+
+  document.querySelectorAll("[data-media-filter]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      homeMediaFilter = btn.getAttribute("data-media-filter") || "all";
+      document.querySelectorAll("[data-media-filter]").forEach(function (other) {
+        other.setAttribute("aria-pressed", other === btn ? "true" : "false");
+      });
+      applyHomeFilter();
+    });
+  });
+  document.getElementById("home-lightbox-x").addEventListener("click", closeHomeLightbox);
+  document.getElementById("home-lightbox").addEventListener("click", function (event) {
+    if (event.target === event.currentTarget) closeHomeLightbox();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeHomeLightbox();
+  });
 
   function boot() {
     MENU = window.SHEGER_MENU;

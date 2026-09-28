@@ -311,35 +311,166 @@
     color: var(--text);
   }
   .home-card a { color: var(--cream); }
+  .home-media {
+    margin: 0 auto 36px;
+    max-width: 720px;
+  }
+  .home-media[hidden] { display: none; }
+  .home-media-filters {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .home-media-filters button {
+    min-height: 42px;
+    border-radius: 999px;
+    border: 1px solid var(--gold-line-strong);
+    background: transparent;
+    color: var(--text);
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .home-media-filters button[aria-pressed="true"] {
+    border-color: transparent;
+    background: linear-gradient(180deg, #e0c06a, var(--gold-deep));
+    color: #1a1206;
+  }
+  .home-gallery-wrap {
+    max-height: min(58vh, 520px);
+    overflow: auto;
+    padding: 4px 2px 8px;
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    background:
+      linear-gradient(180deg, rgba(212, 175, 55, 0.06), transparent 28%),
+      rgba(0, 0, 0, 0.28);
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-deep) transparent;
+  }
+  .home-gallery-wrap::-webkit-scrollbar { width: 8px; }
+  .home-gallery-wrap::-webkit-scrollbar-thumb {
+    background: var(--gold-deep);
+    border-radius: 999px;
+  }
   .home-gallery {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 14px;
-    margin: 0 auto 32px;
-    max-width: 520px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 0;
+    padding: 10px;
     text-align: left;
   }
   .home-gallery figure {
     margin: 0;
-    border: 1px solid rgba(212, 175, 55, 0.35);
-    background: rgba(0, 0, 0, 0.35);
+    position: relative;
+    aspect-ratio: 1;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    background: #0c0c0c;
     overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s;
   }
+  .home-gallery figure:hover {
+    transform: translateY(-2px);
+    border-color: var(--gold);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+  }
+  .home-gallery figure[hidden] { display: none; }
   .home-gallery img,
   .home-gallery video {
     display: block;
     width: 100%;
-    max-height: 360px;
+    height: 100%;
     object-fit: cover;
     background: #111;
   }
-  .home-gallery figcaption {
-    padding: 10px 12px;
-    font-size: 15px;
+  .home-gallery .kind {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    padding: 3px 8px;
+    border: 1px solid rgba(212, 175, 55, 0.65);
+    background: rgba(0, 0, 0, 0.72);
     color: var(--gold-bright);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .home-gallery figcaption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 8px 8px 6px;
+    font-size: 12px;
+    line-height: 1.25;
+    color: #fff;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.82));
+  }
+  .home-gallery-empty {
+    margin: 0;
+    padding: 28px 16px;
+    text-align: center;
+    color: var(--mute);
     font-style: italic;
   }
-  .home-gallery:empty { display: none; }
+  .home-gallery-empty[hidden] { display: none; }
+  .home-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background: rgba(0, 0, 0, 0.92);
+    animation: rise 0.3s var(--ease) both;
+  }
+  .home-lightbox[hidden] { display: none; }
+  .home-lightbox-card {
+    position: relative;
+    width: min(920px, 100%);
+    max-height: calc(100vh - 48px);
+    text-align: center;
+  }
+  .home-lightbox-card img,
+  .home-lightbox-card video {
+    max-width: 100%;
+    max-height: calc(100vh - 120px);
+    object-fit: contain;
+    border: 1px solid var(--gold-line-strong);
+    background: #0a0a0a;
+  }
+  .home-lightbox-card p {
+    margin: 12px 0 0;
+    color: var(--gold-bright);
+    font-size: 16px;
+    font-style: italic;
+  }
+  .home-lightbox-x {
+    position: absolute;
+    top: -8px;
+    right: -4px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    background: #1a1a1a;
+    color: var(--text);
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  @media (max-width: 720px) {
+    .home-gallery { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  }
 
   main { padding: 10px 16px 28px; }
   section[hidden], h2[hidden],
@@ -1055,7 +1186,17 @@
     <section id="home" class="home-panel" role="tabpanel" aria-labelledby="tab-home">
       <h2 class="welcome">Welcome to the lounge</h2>
       <p class="lede">Premium Ethiopian dining in Kazanchis. Browse the menu, see dish photos, and place your order.</p>
-      <div class="home-gallery" id="home-gallery"></div>
+      <div class="home-media" id="home-media" hidden>
+        <div class="home-media-filters" role="group" aria-label="Home media">
+          <button type="button" data-media-filter="all" aria-pressed="true">All</button>
+          <button type="button" data-media-filter="photo" aria-pressed="false">Photos</button>
+          <button type="button" data-media-filter="video" aria-pressed="false">Videos</button>
+        </div>
+        <div class="home-gallery-wrap">
+          <div class="home-gallery" id="home-gallery"></div>
+          <p class="home-gallery-empty" id="home-gallery-empty" hidden>No items in this view yet.</p>
+        </div>
+      </div>
       <div class="home-actions">
         <button type="button" class="to-food" data-go="food">Food menu</button>
         <button type="button" class="to-drinks" data-go="drinks">Drinks menu</button>
@@ -1149,6 +1290,14 @@
     <h2 id="thanks-title">Thank you so much</h2>
     <p id="thanks-detail"></p>
     <button type="button" class="ok" id="thanks-ok">OK</button>
+  </div>
+</div>
+
+<div class="home-lightbox" id="home-lightbox" hidden>
+  <div class="home-lightbox-card">
+    <button class="home-lightbox-x" type="button" id="home-lightbox-x" aria-label="Close">×</button>
+    <div id="home-lightbox-media"></div>
+    <p id="home-lightbox-caption"></p>
   </div>
 </div>
 
