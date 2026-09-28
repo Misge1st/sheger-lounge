@@ -233,6 +233,84 @@
     background: linear-gradient(180deg, transparent, rgba(212, 175, 55, 0.08));
     box-shadow: inset 0 -2px 0 var(--gold);
   }
+  body.home form.search,
+  body.home nav.cats { display: none; }
+  body.home .dock { border-bottom-color: var(--gold-line); }
+
+  .home-panel {
+    padding: 28px 8px 40px;
+    text-align: center;
+    animation: rise 0.7s var(--ease) both;
+  }
+  .home-panel .welcome {
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(28px, 7vw, 40px);
+    letter-spacing: 0.06em;
+    color: var(--cream);
+    margin: 0 0 12px;
+  }
+  .home-panel .lede {
+    max-width: 28em;
+    margin: 0 auto 28px;
+    font-size: 18px;
+    line-height: 1.5;
+    font-style: italic;
+    color: var(--mute);
+  }
+  .home-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 36px;
+  }
+  .home-actions button {
+    min-height: 50px;
+    min-width: 148px;
+    border-radius: 999px;
+    font-family: Cormorant, Georgia, serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 12px 22px;
+    transition: transform 0.2s var(--ease), filter 0.2s;
+  }
+  .home-actions button:hover { transform: translateY(-1px); filter: brightness(1.06); }
+  .home-actions .to-food {
+    border: 1px solid var(--gold);
+    background: linear-gradient(180deg, #e01838, var(--red-deep));
+    color: #fff;
+  }
+  .home-actions .to-drinks {
+    border: 1px solid var(--gold-line-strong);
+    background: transparent;
+    color: var(--cream);
+  }
+  .home-card {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 20px 18px;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    background: linear-gradient(160deg, rgba(18, 14, 10, 0.7), rgba(8, 8, 8, 0.35));
+    text-align: left;
+  }
+  .home-card h3 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .home-card p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--text);
+  }
+  .home-card a { color: var(--cream); }
 
   main { padding: 10px 16px 28px; }
   section[hidden], h2[hidden],
@@ -910,7 +988,7 @@
 </style>
 
 </head>
-<body>
+<body class="home">
 <div class="scene" aria-hidden="true"></div>
 <form name="food-rating" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" hidden>
   <input name="bot-field">
@@ -930,7 +1008,8 @@
 
   <div class="dock">
     <nav class="tabs" role="tablist">
-      <button type="button" role="tab" id="tab-food" aria-controls="food" aria-selected="true">FOOD</button>
+      <button type="button" role="tab" id="tab-home" aria-controls="home" aria-selected="true">HOME</button>
+      <button type="button" role="tab" id="tab-food" aria-controls="food" aria-selected="false">FOOD</button>
       <button type="button" role="tab" id="tab-drinks" aria-controls="drinks" aria-selected="false">DRINKS</button>
     </nav>
     <form class="search" id="menu-search" role="search">
@@ -944,7 +1023,21 @@
 
   <main>
     <p class="search-status" id="search-status" hidden></p>
-    <section id="food" role="tabpanel" aria-labelledby="tab-food"></section>
+    <section id="home" class="home-panel" role="tabpanel" aria-labelledby="tab-home">
+      <h2 class="welcome">Welcome to the lounge</h2>
+      <p class="lede">Premium Ethiopian dining in Kazanchis. Browse the menu, see dish photos, and place your order.</p>
+      <div class="home-actions">
+        <button type="button" class="to-food" data-go="food">Food menu</button>
+        <button type="button" class="to-drinks" data-go="drinks">Drinks menu</button>
+      </div>
+      <div class="home-card">
+        <h3>Visit us</h3>
+        <p class="home-address am">አድራሻ: ካሳንቺስ ዑራኤል ቤ/ክ ፊት ለፊት ስፖርት ፓርክ አጠገብ</p>
+        <p style="margin-top:10px">Delivery <a class="phone" data-slot="0" href="tel:+251911597029">251 911 59 70 29</a>
+          · <a class="phone" data-slot="1" href="tel:+251909051024">0909 05 10 24</a></p>
+      </div>
+    </section>
+    <section id="food" role="tabpanel" aria-labelledby="tab-food" hidden></section>
     <section id="drinks" role="tabpanel" aria-labelledby="tab-drinks" hidden></section>
   </main>
 

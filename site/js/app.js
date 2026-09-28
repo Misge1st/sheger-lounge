@@ -347,15 +347,24 @@
   var searchStatus = document.getElementById("search-status");
 
   function showTab(which, scrollTop) {
+    var home = which === "home";
     var drinks = which === "drinks";
     tabs.forEach(function (other) {
-      var on = other.id === (drinks ? "tab-drinks" : "tab-food");
+      var id = other.getAttribute("aria-controls");
+      var on = id === which;
       other.setAttribute("aria-selected", on ? "true" : "false");
-      document.getElementById(other.getAttribute("aria-controls")).hidden = !on;
+      var panel = document.getElementById(id);
+      if (panel) panel.hidden = !on;
     });
-    document.body.classList.toggle("drinks", drinks);
-    setCats(drinks ? "drinks" : "food");
-    if (norm(searchInput.value)) document.getElementById("cats").hidden = true;
+    document.body.classList.toggle("home", home);
+    document.body.classList.toggle("drinks", drinks && !home);
+    if (!home) {
+      setCats(drinks ? "drinks" : "food");
+      if (norm(searchInput.value)) document.getElementById("cats").hidden = true;
+    } else {
+      document.getElementById("cats").hidden = true;
+      document.getElementById("cats").innerHTML = "";
+    }
     if (scrollTop) window.scrollTo(0, 0);
   }
 
@@ -371,6 +380,9 @@
     var foodHits = 0;
     var drinkHits = 0;
     clearSearch.hidden = !q;
+    if (q && document.body.classList.contains("home")) {
+      showTab("food", false);
+    }
     document.querySelectorAll("#food .plate").forEach(function (plate) {
       var rows = plate.querySelectorAll("[data-q]");
       if (rows.length && !plate.dataset.q) {
@@ -404,7 +416,7 @@
       var visible = block.querySelector(".plate:not([hidden]), .drink:not([hidden])");
       block.hidden = !!q && !visible;
     });
-    document.getElementById("cats").hidden = !!q;
+    document.getElementById("cats").hidden = !!q || document.body.classList.contains("home");
     searchStatus.hidden = !q;
     searchStatus.innerHTML = "";
     if (!q) return { food: 0, drinks: 0 };
@@ -434,8 +446,15 @@
 
   tabs.forEach(function (btn) {
     btn.addEventListener("click", function () {
-      showTab(btn.id === "tab-drinks" ? "drinks" : "food", true);
-      if (norm(searchInput.value)) applySearch(searchInput.value);
+      var which = btn.getAttribute("aria-controls") || "home";
+      showTab(which, true);
+      if (which !== "home" && norm(searchInput.value)) applySearch(searchInput.value);
+    });
+  });
+
+  document.querySelectorAll(".home-actions [data-go]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      showTab(btn.getAttribute("data-go"), true);
     });
   });
 
@@ -476,8 +495,9 @@
     if (!info) return;
     var addr = document.querySelector(".addr");
     if (addr && info.maps) addr.href = info.maps;
-    var am = document.querySelector(".addr .am");
-    if (am && info.address) am.textContent = info.address;
+    document.querySelectorAll(".addr .am, .home-address").forEach(function (am) {
+      if (info.address) am.textContent = info.address;
+    });
     var phones = info.phones || [];
     document.querySelectorAll(".phone").forEach(function (link) {
       var value = phones[Number(link.dataset.slot)] || "";
@@ -504,7 +524,7 @@
     applyInfo(MENU.info);
     renderFood();
     renderDrinks();
-    setCats("food");
+    showTab("home", false);
     bindPhotos();
     paintYours();
     if (window.ShegerOrder) window.ShegerOrder.bindMenu();
