@@ -62,6 +62,21 @@ function cleanImage(value) {
   return "";
 }
 
+function cleanFoodImages(item) {
+  const raw = Array.isArray(item && item.images) && item.images.length
+    ? item.images
+    : (item && item.image ? [item.image] : []);
+  const out = [];
+  const seen = Object.create(null);
+  raw.forEach(function (value) {
+    const cleaned = cleanImage(value);
+    if (!cleaned || seen[cleaned] || out.length >= 3) return;
+    seen[cleaned] = true;
+    out.push(cleaned);
+  });
+  return out;
+}
+
 function cleanLines(rows) {
   if (!Array.isArray(rows)) return [];
   return rows.slice(0, 12).map(function (row) {
@@ -93,14 +108,16 @@ function cleanMenu(body) {
   const food = body.food.map(function (item) {
     const name = cleanText(item && item.name, 80);
     if (!name) throw new Error("Each food needs a name and a price.");
+    const images = cleanFoodImages(item);
     const cleaned = {
       category: ["Meats", "Dishes", "Fasting"].indexOf(item.category) >= 0 ? item.category : "Dishes",
       id: cleanId(item.id, "item"),
       name: name,
       am: cleanText(item.am, 80),
-      image: cleanImage(item.image),
+      image: images[0] || "",
       available: item.available !== false
     };
+    if (images.length) cleaned.images = images;
     if (item.feature === true) cleaned.feature = true;
     if (item.share === true) cleaned.share = true;
     if (Array.isArray(item.sizes) && item.sizes.length) {
@@ -246,11 +263,20 @@ function rewriteHomeMediaSrc(src, type) {
   return staticHomeSrc(match[1], type === "video" ? "video" : "photo");
 }
 
+function rewritePhotoSrc(value) {
+  const match = String(value || "").match(/^\/api\/photo\?id=([a-z0-9-]+)$/i);
+  return match ? "photos/" + match[1] + ".jpg" : value;
+}
+
 function menuForGitHub(menu) {
   const copy = JSON.parse(JSON.stringify(menu));
   (copy.food || []).forEach(function (item) {
-    const match = String(item.image || "").match(/^\/api\/photo\?id=([a-z0-9-]+)$/i);
-    if (match) item.image = "photos/" + match[1] + ".jpg";
+    item.image = rewritePhotoSrc(item.image);
+    if (Array.isArray(item.images)) {
+      item.images = item.images.map(rewritePhotoSrc).filter(Boolean).slice(0, 3);
+      if (item.images.length) item.image = item.images[0];
+      else delete item.images;
+    }
   });
   if (copy.home && Array.isArray(copy.home.media)) {
     copy.home.media.forEach(function (item) {

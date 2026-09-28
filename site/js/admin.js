@@ -212,6 +212,32 @@
     });
   }
 
+  function stashFoodEditor(item, form) {
+    if (!item || !form) return;
+    var nameNode = form.querySelector("[name=name]");
+    var amNode = form.querySelector("[name=am]");
+    var catNode = form.querySelector("[name=category]");
+    var availableNode = form.querySelector("[name=available]");
+    var featureNode = form.querySelector("[name=feature]");
+    var multiNode = form.querySelector("[name=multi]");
+    var priceNode = form.querySelector("[name=price]");
+    if (nameNode) item.name = nameNode.value.trim();
+    if (amNode) item.am = amNode.value.trim();
+    if (catNode) item.category = catNode.value;
+    if (availableNode) item.available = availableNode.checked;
+    if (featureNode) {
+      if (featureNode.checked) item.feature = true;
+      else delete item.feature;
+    }
+    if (multiNode && multiNode.checked) {
+      item.sizes = priced(readLines(form));
+      delete item.price;
+    } else if (priceNode) {
+      item.price = formatPrice(priceNode.value) || priceNode.value.trim();
+      delete item.sizes;
+    }
+  }
+
   function commitFood(item, form) {
     var name = form.querySelector("[name=name]").value.trim();
     if (!name) return "Add the food name.";
@@ -299,16 +325,63 @@
     return true;
   }
 
+  function foodImages(item) {
+    var list = [];
+    var seen = {};
+    var source = (item && Array.isArray(item.images) && item.images.length)
+      ? item.images
+      : (item && item.image ? [item.image] : []);
+    source.forEach(function (src) {
+      var text = String(src || "").trim();
+      if (!text || seen[text] || list.length >= 3) return;
+      seen[text] = true;
+      list.push(text);
+    });
+    return list;
+  }
+
+  function syncFoodImages(item) {
+    var list = foodImages(item);
+    item.images = list;
+    item.image = list[0] || "";
+    return list;
+  }
+
   function foodEditor(item) {
     var form = document.createElement("form");
     form.className = "editor";
-    if (item.image) {
+    var bank = document.createElement("div");
+    bank.className = "photo-bank";
+    var slots = document.createElement("div");
+    slots.className = "photo-slots";
+    foodImages(item).forEach(function (src, index) {
+      var slot = document.createElement("div");
+      slot.className = "photo-slot";
       var preview = document.createElement("img");
       preview.className = "preview";
       preview.alt = "";
-      preview.src = item.image;
-      form.appendChild(preview);
+      preview.src = src;
+      slot.appendChild(preview);
+      var remove = button("Remove", "remove-photo", index, "food", "warn");
+      slot.appendChild(remove);
+      slots.appendChild(slot);
+    });
+    bank.appendChild(slots);
+    var hint = document.createElement("p");
+    hint.className = "muted";
+    var count = foodImages(item).length;
+    hint.textContent = count >= 3
+      ? "3 photos max. Remove one to add another."
+      : "Up to 3 photos. Customers can swipe through them. (" + count + "/3)";
+    bank.appendChild(hint);
+    if (count < 3) {
+      var photo = document.createElement("input");
+      photo.type = "file";
+      photo.name = "photo";
+      photo.accept = "image/*";
+      bank.appendChild(field("Add photo", photo));
     }
+    form.appendChild(bank);
     form.appendChild(field("Name", input("name", item.name, "Chicken pasta")));
     form.appendChild(field("Amharic name", input("am", item.am, "")));
     form.appendChild(field("Category", select("category", FOOD_CATS, item.category || "Dishes")));
@@ -332,11 +405,6 @@
     many.appendChild(lines);
     many.appendChild(button("Add price", "add-line"));
     form.appendChild(many);
-    var photo = document.createElement("input");
-    photo.type = "file";
-    photo.name = "photo";
-    photo.accept = "image/*";
-    form.appendChild(field("Photo", photo));
     var actions = document.createElement("div");
     actions.className = "row-actions";
     actions.appendChild(button("Done", "done"));
@@ -728,17 +796,16 @@
     });
   }
 
-  function uploadPhoto(item, file, preview) {
+  function uploadPhoto(item, file) {
     if (!item.id) item.id = uniqueId(item.name || "dish");
-    if (!preview) {
-      preview = document.createElement("img");
-      preview.className = "preview";
-      preview.alt = "";
-      var form = panel.querySelector("form.editor");
-      if (form) form.insertBefore(preview, form.firstChild);
+    var form = panel.querySelector("form.editor");
+    stashFoodEditor(item, form);
+    syncFoodImages(item);
+    if (foodImages(item).length >= 3) {
+      showStatus("This dish already has 3 photos. Remove one first.");
+      return;
     }
     var localUrl = URL.createObjectURL(file);
-    preview.src = localUrl;
     showStatus("Saving the photo…");
     compress(file).then(function (blob) {
       return fetch("/api/photo?id=" + encodeURIComponent(item.id), {
@@ -749,10 +816,14 @@
     }).then(function (res) {
       return res.json().then(function (data) {
         if (!res.ok) throw new Error((data && data.error) || "The photo was not saved.");
-        item.image = data.image;
+        var list = foodImages(item);
+        list.push(data.image);
+        item.images = list.slice(0, 3);
+        item.image = item.images[0] || "";
         if (item.share) delete item.share;
-        if (preview) preview.src = data.image;
         URL.revokeObjectURL(localUrl);
+        showStatus("Photo added. Press Publish for customers.");
+        render();
         return publishDraft();
       });
     }).catch(function (error) {
@@ -778,6 +849,20 @@
       ensureHome();
       draft.home.media.splice(index, 1);
       showStatus("Removed on this page. Press Publish for customers.");
+      render();
+      return;
+    }
+    if (action === "remove-photo") {
+      if (!editing || editing.kind !== "food") return;
+      var dish = draft.food[editing.index];
+      if (!dish) return;
+      stashFoodEditor(dish, panel.querySelector("form.editor"));
+      var photos = foodImages(dish);
+      if (index < 0 || index >= photos.length) return;
+      photos.splice(index, 1);
+      dish.images = photos;
+      dish.image = photos[0] || "";
+      showStatus("Photo removed on this page. Press Publish for customers.");
       render();
       return;
     }
@@ -851,8 +936,8 @@
     }
     if (event.target.name === "photo" && event.target.files && event.target.files[0] && editing) {
       var item = draft.food[editing.index];
-      var preview = event.target.form.querySelector(".preview");
-      uploadPhoto(item, event.target.files[0], preview);
+      uploadPhoto(item, event.target.files[0]);
+      event.target.value = "";
     }
   });
 

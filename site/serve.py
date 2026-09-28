@@ -56,6 +56,21 @@ def clean_image(value):
     return ""
 
 
+def clean_food_images(item):
+    raw = item.get("images") if isinstance(item.get("images"), list) and item.get("images") else None
+    if raw is None:
+        raw = [item.get("image")] if item.get("image") else []
+    out = []
+    seen = set()
+    for value in raw:
+        cleaned = clean_image(value)
+        if not cleaned or cleaned in seen or len(out) >= 3:
+            continue
+        seen.add(cleaned)
+        out.append(cleaned)
+    return out
+
+
 def clean_lines(rows):
     out = []
     if not isinstance(rows, list):
@@ -177,14 +192,17 @@ def clean_menu(body):
         name = clean_text(item.get("name"), 80)
         if not name:
             raise ValueError("Each food needs a name and a price.")
+        images = clean_food_images(item)
         cleaned = {
             "category": item.get("category") if item.get("category") in ("Meats", "Dishes", "Fasting") else "Dishes",
             "id": clean_id(item.get("id"), "item"),
             "name": name,
             "am": clean_text(item.get("am"), 80),
-            "image": clean_image(item.get("image")),
+            "image": images[0] if images else "",
             "available": item.get("available") is not False,
         }
+        if images:
+            cleaned["images"] = images
         if item.get("feature") is True:
             cleaned["feature"] = True
         if item.get("share") is True:

@@ -2,7 +2,6 @@
   var MENU = window.SHEGER_MENU;
   var viewer = document.getElementById("viewer");
   var viewerInfo = document.getElementById("viewer-info");
-  var viewerImg = document.getElementById("viewer-img");
   var viewerRate = document.getElementById("viewer-rate");
   var lastShot = null;
   var eagerLeft = 2;
@@ -69,19 +68,120 @@
     return "<p class='yours' data-for='" + esc(id) + "'></p>";
   }
 
-  function makeImg(item) {
-    var img = document.createElement("img");
-    img.src = item.image;
-    img.alt = item.name;
-    img.decoding = "async";
-    if (eagerLeft > 0) {
-      img.loading = "eager";
-      eagerLeft -= 1;
-    } else {
-      img.loading = "lazy";
+  function foodImages(item) {
+    var list = [];
+    var seen = {};
+    var source = (item && Array.isArray(item.images) && item.images.length)
+      ? item.images
+      : (item && item.image ? [item.image] : []);
+    source.forEach(function (src) {
+      var text = String(src || "").trim();
+      if (!text || seen[text] || list.length >= 3) return;
+      seen[text] = true;
+      list.push(text);
+    });
+    return list;
+  }
+
+  function bindSwipe(shell, track, dots, count) {
+    if (count < 2) return;
+    var index = 0;
+    var startX = 0;
+    var delta = 0;
+    var dragging = false;
+
+    function go(next) {
+      index = Math.max(0, Math.min(count - 1, next));
+      track.style.transform = "translateX(" + (-index * 100) + "%)";
+      if (dots) {
+        dots.querySelectorAll("button").forEach(function (dot, i) {
+          dot.setAttribute("aria-current", i === index ? "true" : "false");
+        });
+      }
     }
-    if (item.available === false) img.tabIndex = -1;
-    return img;
+
+    shell.addEventListener("touchstart", function (event) {
+      if (!event.touches || !event.touches.length) return;
+      dragging = true;
+      startX = event.touches[0].clientX;
+      delta = 0;
+      track.style.transition = "none";
+    }, { passive: true });
+
+    shell.addEventListener("touchmove", function (event) {
+      if (!dragging || !event.touches || !event.touches.length) return;
+      delta = event.touches[0].clientX - startX;
+      var width = shell.clientWidth || 1;
+      track.style.transform = "translateX(" + ((-index * 100) + (delta / width) * 100) + "%)";
+    }, { passive: true });
+
+    shell.addEventListener("touchend", function () {
+      if (!dragging) return;
+      dragging = false;
+      track.style.transition = "";
+      if (Math.abs(delta) > 36) go(index + (delta < 0 ? 1 : -1));
+      else go(index);
+    });
+
+    if (dots) {
+      dots.querySelectorAll("button").forEach(function (dot, i) {
+        dot.addEventListener("click", function (event) {
+          event.stopPropagation();
+          go(i);
+        });
+      });
+    }
+  }
+
+  function makeShot(item, opts) {
+    opts = opts || {};
+    var images = foodImages(item);
+    if (!images.length) {
+      var blank = document.createElement("div");
+      blank.className = "no-photo";
+      return blank;
+    }
+    var shot = document.createElement("div");
+    shot.className = "shot" + (images.length > 1 ? " multi" : "");
+    shot.setAttribute("role", "button");
+    shot.tabIndex = item.available === false ? -1 : 0;
+    shot.dataset.images = JSON.stringify(images);
+    shot.dataset.alt = item.name || "";
+
+    var viewport = document.createElement("div");
+    viewport.className = "shot-view";
+    var track = document.createElement("div");
+    track.className = "shot-track";
+    images.forEach(function (src, i) {
+      var img = document.createElement("img");
+      img.src = src;
+      img.alt = item.name || "";
+      img.decoding = "async";
+      if (opts.eager && i === 0 && eagerLeft > 0) {
+        img.loading = "eager";
+        eagerLeft -= 1;
+      } else {
+        img.loading = "lazy";
+      }
+      track.appendChild(img);
+    });
+    viewport.appendChild(track);
+    shot.appendChild(viewport);
+
+    if (images.length > 1) {
+      var dots = document.createElement("div");
+      dots.className = "shot-dots";
+      images.forEach(function (_, i) {
+        var dot = document.createElement("button");
+        dot.type = "button";
+        dot.setAttribute("aria-label", "Photo " + (i + 1));
+        if (i === 0) dot.setAttribute("aria-current", "true");
+        dots.appendChild(dot);
+      });
+      shot.appendChild(dots);
+      bindSwipe(viewport, track, dots, images.length);
+    }
+    return shot;
   }
 
   function makePlate(item) {
@@ -89,12 +189,7 @@
     plate.className = "plate" + (item.available === false ? " unavailable" : "");
     plate.dataset.q = itemText(item);
     if (item.id) plate.dataset.id = item.id;
-    if (item.image) plate.appendChild(makeImg(item));
-    else {
-      var blank = document.createElement("div");
-      blank.className = "no-photo";
-      plate.appendChild(blank);
-    }
+    plate.appendChild(makeShot(item, { eager: true }));
     var body = document.createElement("div");
     if (item.sizes) {
       body.innerHTML = "<h2>" + nameHtml(item) + "</h2>" + item.sizes.map(function (s) {
@@ -117,7 +212,7 @@
   function makePair(a, b) {
     var plate = document.createElement("div");
     plate.className = "plate";
-    if (a.image) plate.appendChild(makeImg(a));
+    plate.appendChild(makeShot(a, { eager: true }));
     var body = document.createElement("div");
     [a, b].forEach(function (item) {
       var row = document.createElement("div");
@@ -301,40 +396,79 @@
     });
   }
 
-  function openViewer(img) {
-    var plate = img.parentElement;
+  function openViewer(shot) {
+    var plate = shot.closest(".plate") || shot.parentElement;
     if (plate.classList.contains("unavailable")) return;
-    var block = plate.querySelector(":scope > div");
+    var block = plate.querySelector(":scope > div:not(.shot):not(.no-photo)");
     viewerInfo.innerHTML = "";
-    var copy = block.cloneNode(true);
-    copy.querySelectorAll(".yours").forEach(function (node) { node.remove(); });
-    viewerInfo.appendChild(copy);
-    viewerImg.src = img.currentSrc || img.src;
-    viewerImg.alt = img.alt;
+    if (block) {
+      var copy = block.cloneNode(true);
+      copy.querySelectorAll(".yours").forEach(function (node) { node.remove(); });
+      viewerInfo.appendChild(copy);
+    }
+
+    var images = [];
+    try { images = JSON.parse(shot.dataset.images || "[]"); } catch (e) { images = []; }
+    if (!images.length && shot.tagName === "IMG") images = [shot.currentSrc || shot.src];
+
+    var media = document.getElementById("viewer-media");
+    media.innerHTML = "";
+    var shell = document.createElement("div");
+    shell.className = "viewer-shot" + (images.length > 1 ? " multi" : "");
+    var viewport = document.createElement("div");
+    viewport.className = "viewer-view";
+    var track = document.createElement("div");
+    track.className = "viewer-track";
+    images.forEach(function (src) {
+      var img = document.createElement("img");
+      img.src = src;
+      img.alt = shot.dataset.alt || "";
+      track.appendChild(img);
+    });
+    viewport.appendChild(track);
+    shell.appendChild(viewport);
+    var dots = null;
+    if (images.length > 1) {
+      dots = document.createElement("div");
+      dots.className = "viewer-dots";
+      images.forEach(function (_, i) {
+        var dot = document.createElement("button");
+        dot.type = "button";
+        dot.setAttribute("aria-label", "Photo " + (i + 1));
+        if (i === 0) dot.setAttribute("aria-current", "true");
+        dots.appendChild(dot);
+      });
+      shell.appendChild(dots);
+      bindSwipe(viewport, track, dots, images.length);
+    }
+    media.appendChild(shell);
+
     buildRateForm(plate);
     viewer.hidden = false;
     document.body.style.overflow = "hidden";
-    lastShot = img;
+    lastShot = shot;
   }
 
   function closeViewer() {
     viewer.hidden = true;
-    viewerImg.removeAttribute("src");
+    var media = document.getElementById("viewer-media");
+    if (media) media.innerHTML = "";
     viewerRate.innerHTML = "";
     document.body.style.overflow = "";
     if (lastShot) lastShot.focus();
   }
 
   function bindPhotos() {
-    document.querySelectorAll("#food .plate > img").forEach(function (img) {
-      if (img.parentElement.classList.contains("unavailable")) return;
-      img.tabIndex = 0;
-      img.setAttribute("role", "button");
-      img.addEventListener("click", function () { openViewer(img); });
-      img.addEventListener("keydown", function (e) {
+    document.querySelectorAll("#food .plate > .shot").forEach(function (shot) {
+      if (shot.parentElement.classList.contains("unavailable")) return;
+      shot.addEventListener("click", function (event) {
+        if (event.target.closest(".shot-dots")) return;
+        openViewer(shot);
+      });
+      shot.addEventListener("keydown", function (e) {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          openViewer(img);
+          openViewer(shot);
         }
       });
     });
