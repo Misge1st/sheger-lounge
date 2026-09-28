@@ -112,7 +112,15 @@
     align-items: center;
     justify-content: center;
   }
-  header.hero > * { position: relative; z-index: 1; }
+  header.hero > *:not(.badge) { position: relative; z-index: 1; }
+  header.hero > .badge {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    left: auto;
+    z-index: 3;
+    margin: 0;
+  }
   .sheger {
     font-family: BodoniModa, Georgia, serif;
     font-style: italic;
