@@ -507,6 +507,43 @@
     }
   ],
   "home": {
-    "media": []
+    "media": [
+      {
+        "id": "hm-mul1rvvt-1e7hu",
+        "type": "video",
+        "src": "home-media/hm-mul1rvvt-1e7hu.mp4",
+        "caption": ""
+      },
+      {
+        "id": "hm-mul1r7to-2mhp5",
+        "type": "photo",
+        "src": "home-media/hm-mul1r7to-2mhp5.jpg",
+        "caption": ""
+      },
+      {
+        "id": "hm-mul1qdvt-ra78p",
+        "type": "video",
+        "src": "home-media/hm-mul1qdvt-ra78p.mp4",
+        "caption": ""
+      },
+      {
+        "id": "hm-mul1ipi3-x9ouk",
+        "type": "video",
+        "src": "home-media/hm-mul1ipi3-x9ouk.mp4",
+        "caption": ""
+      },
+      {
+        "id": "hm-mul1hllz-uc3ui",
+        "type": "video",
+        "src": "home-media/hm-mul1hllz-uc3ui.mp4",
+        "caption": ""
+      },
+      {
+        "id": "hm-mul16a9w-000jq",
+        "type": "video",
+        "src": "home-media/hm-mul16a9w-000jq.mp4",
+        "caption": ""
+      }
+    ]
   }
 }

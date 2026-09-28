@@ -993,12 +993,32 @@ function authorized(req) {
   const token = header.indexOf("Bearer ") === 0 ? header.slice(7) : "";
   return same(token, expected) ? "ok" : "no";
 }
+function homeMediaExt(contentType, type) {
+  if (contentType === "video/webm") return ".webm";
+  if (contentType === "image/png") return ".png";
+  if (contentType === "video/mp4" || type === "video") return ".mp4";
+  return ".jpg";
+}
+function staticHomeSrc(id, type, contentType) {
+  return "home-media/" + id + homeMediaExt(contentType, type);
+}
+function rewriteHomeMediaSrc(src, type) {
+  const text = String(src || "");
+  const match = text.match(/^\/api\/home-media\?id=([a-z0-9-]+)$/i);
+  if (!match) return text;
+  return staticHomeSrc(match[1], type === "video" ? "video" : "photo");
+}
 function menuForGitHub(menu) {
   const copy = JSON.parse(JSON.stringify(menu));
   (copy.food || []).forEach(function(item) {
     const match = String(item.image || "").match(/^\/api\/photo\?id=([a-z0-9-]+)$/i);
     if (match) item.image = "photos/" + match[1] + ".jpg";
   });
+  if (copy.home && Array.isArray(copy.home.media)) {
+    copy.home.media.forEach(function(item) {
+      item.src = rewriteHomeMediaSrc(item.src, item.type);
+    });
+  }
   return copy;
 }
 function githubConfig() {
@@ -1073,6 +1093,13 @@ async function syncPhotoToGitHub(photoId, bytes) {
   if (!cfg) return { ok: false, skipped: true };
   const path = "site/photos/" + photoId + ".jpg";
   await githubPutFile(cfg, path, toBase64(bytes), "Update photo " + photoId + " from staff");
+  return { ok: true };
+}
+async function syncHomeMediaToGitHub(mediaId, bytes, ext) {
+  const cfg = githubConfig();
+  if (!cfg) return { ok: false, skipped: true };
+  const path = "site/home-media/" + mediaId + ext;
+  await githubPutFile(cfg, path, toBase64(bytes), "Update home media " + mediaId + " from staff");
   return { ok: true };
 }
 async function loadOrders(store) {
@@ -1154,6 +1181,12 @@ async function handler(req) {
   if (path.endsWith("/menu") && req.method === "GET") {
     const menu = await store.get("menu", { type: "json" });
     if (!menu) return new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
+    if (menu.home && Array.isArray(menu.home.media)) {
+      menu.home.media = menu.home.media.map(function(row) {
+        if (!row) return row;
+        return Object.assign({}, row, { src: rewriteHomeMediaSrc(row.src, row.type) });
+      });
+    }
     return json(menu);
   }
   if (path.endsWith("/menu") && req.method === "PUT") {
@@ -1242,11 +1275,19 @@ async function handler(req) {
       }, 400);
     }
     const stored = ("hm-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7)).slice(0, 60);
+    const ext = homeMediaExt(kind.contentType, kind.type);
     await store.set("home:" + stored, bytes);
+    let github = { ok: false, skipped: true };
+    try {
+      github = await syncHomeMediaToGitHub(stored, bytes, ext);
+    } catch (error) {
+      github = { ok: false, error: error.message || "GitHub home media sync failed." };
+    }
     return json({
       id: stored,
       type: kind.type,
-      src: "/api/home-media?id=" + stored
+      src: staticHomeSrc(stored, kind.type, kind.contentType),
+      github
     });
   }
   if (path.endsWith("/orders/count") && req.method === "GET") {

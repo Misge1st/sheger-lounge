@@ -521,14 +521,23 @@
 
   var homeMediaFilter = "all";
 
+  function resolveHomeSrc(item) {
+    var src = item && item.src ? String(item.src) : "";
+    var match = src.match(/^\/api\/home-media\?id=([a-z0-9-]+)$/i);
+    if (!match) return src;
+    var ext = item.type === "video" ? ".mp4" : ".jpg";
+    return "home-media/" + match[1] + ext;
+  }
+
   function openHomeLightbox(item) {
     var box = document.getElementById("home-lightbox");
     var media = document.getElementById("home-lightbox-media");
     var caption = document.getElementById("home-lightbox-caption");
+    var src = resolveHomeSrc(item);
     media.innerHTML = "";
     if (item.type === "video") {
       var video = document.createElement("video");
-      video.src = item.src;
+      video.src = src;
       video.controls = true;
       video.autoplay = true;
       video.playsInline = true;
@@ -539,7 +548,7 @@
       video.play().catch(function () {});
     } else {
       var img = document.createElement("img");
-      img.src = item.src;
+      img.src = src;
       img.alt = item.caption || "Sheger Lounge";
       media.appendChild(img);
     }
@@ -586,9 +595,10 @@
       kind.className = "kind";
       kind.textContent = figure.dataset.type === "video" ? "Video" : "Photo";
       figure.appendChild(kind);
+      var src = resolveHomeSrc(item);
       if (item.type === "video") {
         var video = document.createElement("video");
-        video.src = item.src;
+        video.src = src;
         video.muted = true;
         video.playsInline = true;
         video.setAttribute("playsinline", "");
@@ -599,7 +609,7 @@
         figure.appendChild(video);
       } else {
         var img = document.createElement("img");
-        img.src = item.src;
+        img.src = src;
         img.alt = item.caption || "Sheger Lounge";
         img.loading = "lazy";
         figure.appendChild(img);

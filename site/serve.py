@@ -621,7 +621,7 @@ class Handler(SimpleHTTPRequestHandler):
         self._json(200, {
             "id": media_id,
             "type": kind[0],
-            "src": "/api/home-media?id=" + media_id,
+            "src": "home-media/" + filename,
         })
 
     def save_rating(self):
