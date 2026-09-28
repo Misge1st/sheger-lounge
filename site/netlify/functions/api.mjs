@@ -915,8 +915,44 @@ function cleanMenu(body) {
   return {
     info: { address, maps, phones, tiktok: tiktok || "@sheger_kurt", deliveryFee: fee },
     food,
-    drinks
+    drinks,
+    home: cleanHome(body.home)
   };
+}
+function cleanHomeSrc(value) {
+  const text = String(value || "").trim();
+  if (/^\/api\/home-media\?id=[a-z0-9-]{1,60}$/.test(text)) return text;
+  if (/^home-media\/[A-Za-z0-9._-]{1,80}$/.test(text)) return text;
+  return "";
+}
+function cleanHome(home) {
+  const rows = home && Array.isArray(home.media) ? home.media : [];
+  const media = rows.slice(0, 24).map(function(row) {
+    const id = cleanId(row && row.id, "");
+    const type = row && row.type === "video" ? "video" : "photo";
+    const src = cleanHomeSrc(row && row.src);
+    if (!id || !src) return null;
+    return {
+      id,
+      type,
+      src,
+      caption: cleanText(row && row.caption, 80)
+    };
+  }).filter(Boolean);
+  return { media };
+}
+function mediaTypeFromBytes(bytes) {
+  if (!bytes || bytes.length < 12) return null;
+  if (bytes[0] === 255 && bytes[1] === 216) return { type: "photo", contentType: "image/jpeg" };
+  if (bytes[0] === 137 && bytes[1] === 80 && bytes[2] === 78 && bytes[3] === 71) {
+    return { type: "photo", contentType: "image/png" };
+  }
+  if (bytes[0] === 26 && bytes[1] === 69 && bytes[2] === 223 && bytes[3] === 163) {
+    return { type: "video", contentType: "video/webm" };
+  }
+  const head = String.fromCharCode.apply(null, Array.prototype.slice.call(bytes.slice(4, 12)));
+  if (head.indexOf("ftyp") >= 0) return { type: "video", contentType: "video/mp4" };
+  return null;
 }
 function authorized(req) {
   const expected = staffPassword();
@@ -1134,6 +1170,41 @@ async function handler(req) {
       github = { ok: false, error: error.message || "GitHub photo sync failed." };
     }
     return json({ image: "/api/photo?id=" + stored, github });
+  }
+  if (path.endsWith("/home-media") && req.method === "GET") {
+    const id = url.searchParams.get("id") || "";
+    if (!/^[a-z0-9-]{1,60}$/.test(id)) return new Response(null, { status: 404 });
+    const bytes = await store.get("home:" + id, { type: "arrayBuffer" });
+    if (!bytes) return new Response(null, { status: 404 });
+    const view = new Uint8Array(bytes);
+    const kind = mediaTypeFromBytes(view) || { type: "photo", contentType: "application/octet-stream" };
+    return new Response(bytes, { headers: { "content-type": kind.contentType, "cache-control": "no-store" } });
+  }
+  if (path.endsWith("/home-media") && req.method === "POST") {
+    const gate = authorized(req);
+    if (gate === "missing") return json({ error: "Set ADMIN_PASSWORD in the Netlify site settings, then publish again." }, 503);
+    if (gate !== "ok") return json({ error: "That password is not right." }, 401);
+    const want = url.searchParams.get("type") === "video" ? "video" : "photo";
+    const bytes = new Uint8Array(await req.arrayBuffer());
+    const max = want === "video" ? 45e5 : 12e5;
+    if (bytes.length < 100 || bytes.length > max) {
+      return json({
+        error: want === "video" ? "Use a short video under about 4 MB." : "Use a photo from the phone."
+      }, 400);
+    }
+    const kind = mediaTypeFromBytes(bytes);
+    if (!kind || kind.type !== want) {
+      return json({
+        error: want === "video" ? "Use an MP4 or WebM video." : "Use a photo from the phone."
+      }, 400);
+    }
+    const stored = ("hm-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7)).slice(0, 60);
+    await store.set("home:" + stored, bytes);
+    return json({
+      id: stored,
+      type: kind.type,
+      src: "/api/home-media?id=" + stored
+    });
   }
   if (path.endsWith("/orders/count") && req.method === "GET") {
     const data = await loadOrders(store);

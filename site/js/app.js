@@ -519,11 +519,43 @@
     return data && Array.isArray(data.food) && Array.isArray(data.drinks);
   }
 
+  function paintHome() {
+    var gallery = document.getElementById("home-gallery");
+    if (!gallery) return;
+    gallery.innerHTML = "";
+    var rows = (MENU.home && MENU.home.media) || [];
+    rows.forEach(function (item) {
+      if (!item || !item.src) return;
+      var figure = document.createElement("figure");
+      if (item.type === "video") {
+        var video = document.createElement("video");
+        video.src = item.src;
+        video.controls = true;
+        video.playsInline = true;
+        video.preload = "metadata";
+        figure.appendChild(video);
+      } else {
+        var img = document.createElement("img");
+        img.src = item.src;
+        img.alt = item.caption || "Sheger Lounge";
+        img.loading = "lazy";
+        figure.appendChild(img);
+      }
+      if (item.caption) {
+        var cap = document.createElement("figcaption");
+        cap.textContent = item.caption;
+        figure.appendChild(cap);
+      }
+      gallery.appendChild(figure);
+    });
+  }
+
   function boot() {
     MENU = window.SHEGER_MENU;
     applyInfo(MENU.info);
     renderFood();
     renderDrinks();
+    paintHome();
     showTab("home", false);
     bindPhotos();
     paintYours();

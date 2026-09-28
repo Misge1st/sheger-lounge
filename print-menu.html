@@ -199,7 +199,58 @@
   .food .row.size { height: 6mm; }
   .food .size .name { font-size: 16.5px; }
   .food .size .price { font-size: 16.5px; }
-  .photo-slot { height: 38mm; margin-top: 3mm; }
+  .photo-slot { display: none; }
+  .mid-codes {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8mm;
+    width: 100%;
+    margin: 3mm 0 1mm;
+    padding: 3mm 5mm;
+    background: rgba(8, 8, 8, 0.78);
+    border: 1px solid rgba(198, 161, 90, 0.75);
+  }
+  .mid-codes .pair {
+    display: contents;
+  }
+  .mid-codes .web-qr,
+  .mid-codes .tiktok {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 3mm;
+    flex: 1 1 0;
+    max-width: none;
+  }
+  .mid-codes .tiktok {
+    justify-content: flex-end;
+  }
+  .mid-codes .web-qr img,
+  .mid-codes .tiktok img {
+    width: 22mm;
+    height: 22mm;
+    flex: 0 0 auto;
+  }
+  .mid-codes .web-qr b,
+  .mid-codes .tiktok b {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+  .mid-codes .web-qr em,
+  .mid-codes .tiktok em {
+    font-style: normal;
+    font-family: Constantia, Palatino, serif;
+    font-weight: 700;
+    font-size: 11px;
+    line-height: 1.3;
+    color: #f3dc9a;
+    max-width: none;
+  }
+  .mid-codes .hint { display: none; }
 
   .feature {
     margin-top: 1.2mm; padding: 0.4mm 2.2mm;
@@ -211,8 +262,8 @@
 
   .fast {
     flex: 0 0 auto;
-    margin: 6mm 0 0;
-    padding-top: 2.5mm;
+    margin: 3mm 0 0;
+    padding-top: 2mm;
     border-top: 1px solid rgba(198,161,90,.8);
   }
   .fast h3 {
@@ -238,6 +289,22 @@
   .tiktok img { width: 16mm; height: 16mm; object-fit: cover; background: #fff; border-radius: 1.5mm; border: 0.4px solid #c4a574; }
   .tiktok b { display: block; font-family: Palatino, serif; font-size: 9px; letter-spacing: 0.14em; color: #e6c97a; }
   .tiktok em { font-style: normal; font-family: Constantia, Palatino, serif; font-weight: 700; font-size: 12px; color: #f3dc9a; }
+  .codes { display: flex; align-items: center; gap: 4mm; flex: 0 0 auto; }
+  .web-qr { display: flex; align-items: center; gap: 2mm; flex: 0 0 auto; }
+  .web-qr img {
+    width: 18mm; height: 18mm; object-fit: contain; background: #fff;
+    border-radius: 1.5mm; border: 0.4px solid #c4a574; padding: 0.6mm;
+  }
+  .web-qr b { display: block; font-family: Palatino, serif; font-size: 9px; letter-spacing: 0.14em; color: #e6c97a; }
+  .web-qr em {
+    font-style: normal;
+    font-family: Constantia, Palatino, serif;
+    font-weight: 700;
+    font-size: 10px;
+    line-height: 1.25;
+    color: #f3dc9a;
+    max-width: 42mm;
+  }
 
   .drinks .row { height: 7.3mm; }
   .drinks h2 { margin-top: 1.8mm; font-size: 14px; }
@@ -294,7 +361,6 @@
       <h2>Emis Emis <span>እምስ እምስ</span></h2>
       <div class="row size"><span class="name">1 kg</span><span class="dots"></span><span class="price">4,300</span></div>
       <div class="row size"><span class="name">1/2 kg</span><span class="dots"></span><span class="price">2,150</span></div>
-      <div class="photo-slot"></div>
     </div>
 
     <div class="col">
@@ -312,6 +378,17 @@
         <div class="row"><span class="name">Sheger Special Combo <span class="am">ሸገር ስፔሻል ኮምቦ</span></span><span class="dots"></span><span class="price">5,500</span></div>
       </div>
       <div class="row"><span class="name">Yefisik Agelgil <span class="am">የፍስክ አገልግል</span></span><span class="dots"></span><span class="price">3,600</span></div>
+    </div>
+  </div>
+
+  <div class="mid-codes">
+    <div class="web-qr">
+      <img src="menu-qr.png" alt="Scan for website">
+      <div><b>WEBSITE</b><em>Visit our website to see<br>pictures of foods and order</em></div>
+    </div>
+    <div class="tiktok">
+      <img src="tiktok.png" alt="TikTok QR code">
+      <div><b>TIKTOK</b><em>@sheger_kurt</em></div>
     </div>
   </div>
 
@@ -338,10 +415,6 @@
     <div class="info">
       <span><svg viewBox="0 0 24 24" fill="#4a1520"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg><span class="am">አድራሻ: ካሳንቺስ ዑራኤል ቤ/ክ ፊት ለፊት ስፖርት ፓርክ አጠገብ</span></span>
       <span><svg viewBox="0 0 24 24" fill="#4a1520"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 7a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg>Delivery &nbsp; 251 911 59 70 29</span>
-    </div>
-    <div class="tiktok">
-      <img src="tiktok.png" alt="TikTok QR code">
-      <div><b>TIKTOK</b><em>@sheger_kurt</em></div>
     </div>
   </footer>
 </section>
@@ -434,9 +507,15 @@
       <span><svg viewBox="0 0 24 24" fill="#4a1520"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg><span class="am">አድራሻ: ካሳንቺስ ዑራኤል ቤ/ክ ፊት ለፊት ስፖርት ፓርክ አጠገብ</span></span>
       <span><svg viewBox="0 0 24 24" fill="#4a1520"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 7a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg>Delivery &nbsp; 251 911 59 70 29</span>
     </div>
-    <div class="tiktok">
-      <img src="tiktok.png" alt="TikTok QR code">
-      <div><b>TIKTOK</b><em>@sheger_kurt</em></div>
+    <div class="codes">
+      <div class="web-qr">
+        <img src="menu-qr.png" alt="Scan for website">
+        <div><b>SCAN</b><em>Visit our website to see<br>pictures of foods and order</em></div>
+      </div>
+      <div class="tiktok">
+        <img src="tiktok.png" alt="TikTok QR code">
+        <div><b>TIKTOK</b><em>@sheger_kurt</em></div>
+      </div>
     </div>
   </footer>
 </section>

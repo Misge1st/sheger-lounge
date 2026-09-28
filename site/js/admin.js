@@ -527,6 +527,7 @@
     publishBar.hidden = !password || tab === "orders";
     if (tab === "orders") renderOrders();
     else if (tab === "lounge") renderLounge();
+    else if (tab === "home") renderHome();
     else renderList(tab);
     document.querySelectorAll(".tabs button").forEach(function (node) {
       node.setAttribute("aria-selected", node.dataset.tab === tab ? "true" : "false");
@@ -534,6 +535,122 @@
     refreshPublish();
     var editor = panel.querySelector("form.editor");
     if (editor) editor.scrollIntoView({ block: "nearest" });
+  }
+
+  function ensureHome() {
+    if (!draft.home || !Array.isArray(draft.home.media)) draft.home = { media: [] };
+  }
+
+  function renderHome() {
+    ensureHome();
+    var note = document.createElement("p");
+    note.className = "muted";
+    note.textContent = "Photos and videos here show on the customer Home tab. Videos should be short (about 4 MB or less). Press Publish after changes.";
+    panel.appendChild(note);
+
+    var actions = document.createElement("div");
+    actions.className = "row-actions";
+    var photoInput = document.createElement("input");
+    photoInput.type = "file";
+    photoInput.accept = "image/*";
+    photoInput.hidden = true;
+    var videoInput = document.createElement("input");
+    videoInput.type = "file";
+    videoInput.accept = "video/mp4,video/webm,video/*";
+    videoInput.hidden = true;
+    var addPhoto = button("Add photo", "home-pick-photo");
+    var addVideo = button("Add video", "home-pick-video");
+    actions.appendChild(addPhoto);
+    actions.appendChild(addVideo);
+    panel.appendChild(actions);
+    panel.appendChild(photoInput);
+    panel.appendChild(videoInput);
+    addPhoto.addEventListener("click", function () { photoInput.click(); });
+    addVideo.addEventListener("click", function () { videoInput.click(); });
+    photoInput.addEventListener("change", function () {
+      if (photoInput.files && photoInput.files[0]) uploadHomeMedia("photo", photoInput.files[0]);
+      photoInput.value = "";
+    });
+    videoInput.addEventListener("change", function () {
+      if (videoInput.files && videoInput.files[0]) uploadHomeMedia("video", videoInput.files[0]);
+      videoInput.value = "";
+    });
+
+    if (!draft.home.media.length) {
+      var empty = document.createElement("p");
+      empty.className = "muted";
+      empty.textContent = "No home photos or videos yet.";
+      panel.appendChild(empty);
+      return;
+    }
+
+    draft.home.media.forEach(function (item, index) {
+      var row = document.createElement("div");
+      row.className = "row";
+      var preview;
+      if (item.type === "video") {
+        preview = document.createElement("video");
+        preview.src = item.src;
+        preview.controls = true;
+        preview.playsInline = true;
+        preview.muted = true;
+        preview.className = "preview home-preview";
+      } else {
+        preview = document.createElement("img");
+        preview.src = item.src;
+        preview.alt = item.caption || "";
+        preview.className = "preview home-preview";
+      }
+      row.appendChild(preview);
+      var meta = document.createElement("div");
+      meta.style.flex = "1";
+      meta.innerHTML = "<strong>" + (item.type === "video" ? "Video" : "Photo") + "</strong>" +
+        (item.caption ? "<p class='muted'>" + esc(item.caption) + "</p>" : "<p class='muted'>No caption</p>");
+      row.appendChild(meta);
+      var cap = input("caption-" + index, item.caption || "", "Caption (optional)");
+      cap.addEventListener("change", function () {
+        item.caption = String(cap.value || "").trim().slice(0, 80);
+        refreshPublish();
+      });
+      row.appendChild(cap);
+      row.appendChild(button("Remove", "home-remove", index, "home", "warn"));
+      panel.appendChild(row);
+    });
+  }
+
+  function uploadHomeMedia(type, file) {
+    ensureHome();
+    if (draft.home.media.length >= 24) {
+      showStatus("Remove an item before adding more.");
+      return;
+    }
+    showStatus(type === "video" ? "Saving the video…" : "Saving the photo…");
+    var send = type === "photo" ? compress(file) : Promise.resolve(file);
+    send.then(function (blob) {
+      return fetch("/api/home-media?type=" + encodeURIComponent(type), {
+        method: "POST",
+        headers: {
+          "Content-Type": type === "video" ? (file.type || "video/mp4") : "image/jpeg",
+          "Authorization": "Bearer " + password
+        },
+        body: blob
+      });
+    }).then(function (res) {
+      return res.json().then(function (data) {
+        if (!res.ok) throw new Error((data && data.error) || "The file was not saved.");
+        draft.home.media.unshift({
+          id: data.id,
+          type: data.type || type,
+          src: data.src,
+          caption: ""
+        });
+        showStatus("Saved on this page. Press Publish for customers.");
+        render();
+        return publishDraft();
+      });
+    }).catch(function (error) {
+      showStatus(error.message || "The file was not saved.");
+    });
   }
 
   function move(list, index, dir) {
@@ -650,6 +767,16 @@
     var index = node.dataset.index != null ? Number(node.dataset.index) : (editing ? editing.index : -1);
     if (action === "order-status") {
       setOrderStatus(index, kind);
+      return;
+    }
+    if (action === "home-pick-photo" || action === "home-pick-video") {
+      return;
+    }
+    if (action === "home-remove") {
+      ensureHome();
+      draft.home.media.splice(index, 1);
+      showStatus("Removed on this page. Press Publish for customers.");
+      render();
       return;
     }
     if (action === "add-line") {
@@ -784,6 +911,7 @@
       if (usable(data)) draft = data;
       else draft = JSON.parse(JSON.stringify(window.SHEGER_MENU));
       if (!draft.info) draft.info = JSON.parse(JSON.stringify(window.SHEGER_MENU.info || {}));
+      ensureHome();
       savedJson = snapshot(draft);
       editing = null;
       render();

@@ -1,4 +1,36 @@
 {
-  "nextId": 1001,
-  "orders": []
+  "nextId": 1002,
+  "orders": [
+    {
+      "id": 1001,
+      "status": "new",
+      "createdAt": "2026-09-28T06:36:21Z",
+      "items": [
+        {
+          "key": "kurt::1/2 kg",
+          "name": "Kurt",
+          "size": "1/2 kg",
+          "qty": 1,
+          "price": 1950
+        }
+      ],
+      "foodTotal": 1950,
+      "deliveryFee": 100,
+      "total": 2050,
+      "customer": {
+        "name": "Misgana Tsegaye Asefa",
+        "phone": "+251901356171",
+        "city": "Addis Ababa",
+        "area": "Adama",
+        "address": "East Shewa, Ethiopia\nAdama",
+        "note": ""
+      },
+      "map": {
+        "lat": 8.96465049948997,
+        "lng": 38.76670056936416,
+        "url": "https://www.google.com/maps?q=8.96465049948997,38.76670056936416"
+      },
+      "payment": "cash"
+    }
+  ]
 }

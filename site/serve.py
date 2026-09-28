@@ -14,12 +14,14 @@ RATINGS = os.path.join(ROOT, "ratings.json")
 MENU_FILE = os.path.join(ROOT, "data", "menu.json")
 ORDERS_FILE = os.path.join(ROOT, "data", "orders.json")
 PHOTOS = os.path.join(ROOT, "photos")
+HOME_MEDIA = os.path.join(ROOT, "home-media")
 PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 DEFAULT_MAPS = "https://maps.app.goo.gl/qZxyPVoW5e4ZdFVg8?g_st=ic"
 DEFAULT_FEE = 100
 LOCK = threading.Lock()
 ID_OK = re.compile(r"^[a-z0-9-]{1,40}$")
 PHOTO_ID_OK = re.compile(r"^[a-z0-9-]{1,60}$")
+HOME_ID_OK = re.compile(r"^[a-z0-9-]{1,60}$")
 DISHES = {
     "kurt", "gas-light", "shekla", "senber", "emis-emis", "ariza", "zumbara",
     "normal-kitfo", "special-kitfo", "scrambled-egg", "dulet", "tibs-firfir",
@@ -79,6 +81,50 @@ def unique_ids(items):
             item["id"] = (base[:36] + "-" + str(number))[:40]
             number += 1
         seen.add(item["id"])
+
+
+def clean_home_src(value):
+    text = str(value or "").strip()
+    if re.fullmatch(r"/api/home-media\?id=[a-z0-9-]{1,60}", text):
+        return text
+    if re.fullmatch(r"home-media/[A-Za-z0-9._-]{1,80}", text):
+        return text
+    return ""
+
+
+def clean_home(home):
+    rows = home.get("media") if isinstance(home, dict) else None
+    if not isinstance(rows, list):
+        return {"media": []}
+    media = []
+    for row in rows[:24]:
+        if not isinstance(row, dict):
+            continue
+        item_id = clean_id(row.get("id"), "")
+        src = clean_home_src(row.get("src"))
+        if not item_id or not src:
+            continue
+        media.append({
+            "id": item_id,
+            "type": "video" if row.get("type") == "video" else "photo",
+            "src": src,
+            "caption": clean_text(row.get("caption"), 80),
+        })
+    return {"media": media}
+
+
+def media_kind(raw):
+    if not raw or len(raw) < 12:
+        return None
+    if raw[:2] == b"\xff\xd8":
+        return ("photo", "image/jpeg")
+    if raw[:4] == b"\x89PNG":
+        return ("photo", "image/png")
+    if raw[:4] == b"\x1aE\xdf\xa3":
+        return ("video", "video/webm")
+    if b"ftyp" in raw[4:12]:
+        return ("video", "video/mp4")
+    return None
 
 
 def clean_menu(body):
@@ -171,6 +217,7 @@ def clean_menu(body):
         },
         "food": food,
         "drinks": drinks,
+        "home": clean_home(body.get("home")),
     }
 
 
@@ -326,6 +373,9 @@ class Handler(SimpleHTTPRequestHandler):
             with open(MENU_FILE, encoding="utf-8") as handle:
                 self._json(200, json.load(handle))
             return
+        if path == "/api/home-media":
+            self.serve_home_media()
+            return
         if path == "/api/orders/count":
             with LOCK:
                 data = load_orders()
@@ -352,6 +402,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/photo":
             self.save_photo()
+            return
+        if path == "/api/home-media":
+            self.save_home_media()
             return
         if path == "/api/orders":
             self.place_order()
@@ -487,6 +540,60 @@ class Handler(SimpleHTTPRequestHandler):
             with open(path, "wb") as handle:
                 handle.write(raw)
         self._json(200, {"image": "photos/" + filename})
+
+    def serve_home_media(self):
+        query = parse_qs(urlparse(self.path).query)
+        media_id = (query.get("id") or [""])[0]
+        if not HOME_ID_OK.match(media_id):
+            self.send_error(404)
+            return
+        for name in os.listdir(HOME_MEDIA) if os.path.isdir(HOME_MEDIA) else []:
+            if name.startswith(media_id + ".") or name == media_id:
+                path = os.path.join(HOME_MEDIA, name)
+                with open(path, "rb") as handle:
+                    raw = handle.read()
+                kind = media_kind(raw) or ("photo", "application/octet-stream")
+                self.send_response(200)
+                self.send_header("Content-Type", kind[1])
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Content-Length", str(len(raw)))
+                self.end_headers()
+                self.wfile.write(raw)
+                return
+        self.send_error(404)
+
+    def save_home_media(self):
+        if not self.authorized():
+            self._json(401, {"error": "That password is not right."})
+            return
+        query = parse_qs(urlparse(self.path).query)
+        want = "video" if (query.get("type") or [""])[0] == "video" else "photo"
+        limit = 8000000 if want == "video" else 1200000
+        raw = self._read(limit)
+        kind = media_kind(raw) if raw else None
+        if not kind or kind[0] != want:
+            self._json(400, {
+                "error": "Use an MP4 or WebM video." if want == "video" else "Use a photo from the phone."
+            })
+            return
+        if want == "video" and len(raw) > 8000000:
+            self._json(400, {"error": "Use a short video under about 8 MB."})
+            return
+        os.makedirs(HOME_MEDIA, exist_ok=True)
+        ext = ".mp4" if kind[1] == "video/mp4" else ".webm" if kind[1] == "video/webm" else ".jpg"
+        if kind[1] == "image/png":
+            ext = ".png"
+        media_id = ("hm-" + format(int(time.time() * 1000), "x"))[:60]
+        filename = media_id + ext
+        path = os.path.join(HOME_MEDIA, filename)
+        with LOCK:
+            with open(path, "wb") as handle:
+                handle.write(raw)
+        self._json(200, {
+            "id": media_id,
+            "type": kind[0],
+            "src": "/api/home-media?id=" + media_id,
+        })
 
     def save_rating(self):
         raw = self._read(4000)

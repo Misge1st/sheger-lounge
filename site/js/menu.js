@@ -6,6 +6,7 @@ var SHEGER_MENU = {
     tiktok: "@sheger_kurt",
     deliveryFee: "100"
   },
+  home: { media: [] },
   food: [
     { category: "Meats", id: "kurt", name: "Kurt", am: "ቁርጥ", image: "photos/kurt.jpg", available: true, sizes: [{ name: "1 kg", price: "3,950" }, { name: "1/2 kg", price: "1,950" }] },
     { category: "Meats", id: "gas-light", name: "Gas Light", am: "ጋዝ ላይት", image: "photos/gas-light.jpg", available: true, sizes: [{ name: "1 kg", price: "3,950" }, { name: "1/2 kg", price: "1,950" }, { name: "1/4 kg", price: "950" }] },
