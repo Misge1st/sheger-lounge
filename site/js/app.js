@@ -529,6 +529,125 @@
     return "home-media/" + match[1] + ext;
   }
 
+  function thumbCacheKey(src) {
+    return "sheger-vthumb:" + src;
+  }
+
+  function readVideoThumb(src) {
+    try { return sessionStorage.getItem(thumbCacheKey(src)) || ""; }
+    catch (e) { return ""; }
+  }
+
+  function saveVideoThumb(src, dataUrl) {
+    try {
+      if (dataUrl && dataUrl.length < 450000) sessionStorage.setItem(thumbCacheKey(src), dataUrl);
+    } catch (e) {}
+  }
+
+  function paintVideoThumb(figure, src, alt) {
+    var img = document.createElement("img");
+    img.alt = alt || "Video";
+    img.decoding = "async";
+    figure.appendChild(img);
+
+    var poster = String(src || "").replace(/\.(mp4|webm)$/i, ".jpg");
+    var cached = readVideoThumb(src);
+    if (cached) {
+      img.src = cached;
+      return;
+    }
+
+    var triedPoster = false;
+    function useCanvasFallback() {
+      var video = document.createElement("video");
+      video.muted = true;
+      video.playsInline = true;
+      video.setAttribute("muted", "");
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "");
+      video.preload = "auto";
+      video.src = src;
+      video.style.cssText = "position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none";
+      document.body.appendChild(video);
+
+      var done = false;
+      function finish(dataUrl) {
+        if (done) return;
+        done = true;
+        if (dataUrl) {
+          img.src = dataUrl;
+          saveVideoThumb(src, dataUrl);
+        }
+        video.pause();
+        video.removeAttribute("src");
+        try { video.load(); } catch (e) {}
+        if (video.parentNode) video.parentNode.removeChild(video);
+      }
+
+      function snap() {
+        if (!video.videoWidth || !video.videoHeight) return false;
+        var canvas = document.createElement("canvas");
+        var max = 480;
+        var scale = Math.min(1, max / Math.max(video.videoWidth, video.videoHeight));
+        canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
+        canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
+        try {
+          canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+          finish(canvas.toDataURL("image/jpeg", 0.72));
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function seekFrame() {
+        try {
+          var t = 0.35;
+          if (video.duration && isFinite(video.duration) && video.duration > 0) {
+            t = Math.min(1, Math.max(0.15, video.duration * 0.08));
+          }
+          if (Math.abs((video.currentTime || 0) - t) < 0.05) snap();
+          else video.currentTime = t;
+        } catch (e) {
+          snap();
+        }
+      }
+
+      video.addEventListener("seeked", function () { snap(); });
+      video.addEventListener("loadeddata", seekFrame);
+      video.addEventListener("error", function () { finish(""); });
+
+      var playTry = video.play();
+      if (playTry && playTry.then) {
+        playTry.then(function () {
+          video.pause();
+          seekFrame();
+        }).catch(function () {
+          seekFrame();
+        });
+      }
+
+      setTimeout(function () {
+        if (!done) finish("");
+      }, 8000);
+    }
+
+    if (poster && poster !== src) {
+      triedPoster = true;
+      img.onload = function () {
+        if (img.naturalWidth > 0) saveVideoThumb(src, poster);
+      };
+      img.onerror = function () {
+        img.onerror = null;
+        useCanvasFallback();
+      };
+      img.src = poster;
+      return;
+    }
+
+    useCanvasFallback();
+  }
+
   function openHomeLightbox(item) {
     var box = document.getElementById("home-lightbox");
     var media = document.getElementById("home-lightbox-media");
@@ -597,16 +716,7 @@
       figure.appendChild(kind);
       var src = resolveHomeSrc(item);
       if (item.type === "video") {
-        var video = document.createElement("video");
-        video.src = src;
-        video.muted = true;
-        video.playsInline = true;
-        video.setAttribute("playsinline", "");
-        video.preload = "metadata";
-        video.addEventListener("loadeddata", function () {
-          try { video.currentTime = Math.min(0.2, (video.duration || 1) * 0.05); } catch (e) {}
-        });
-        figure.appendChild(video);
+        paintVideoThumb(figure, src, item.caption || "Sheger Lounge video");
       } else {
         var img = document.createElement("img");
         img.src = src;
