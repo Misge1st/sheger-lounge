@@ -592,7 +592,15 @@
       return res.json().catch(function () { return {}; }).then(function (data) {
         if (!res.ok) throw new Error((data && data.error) || "The menu was not published.");
         savedJson = snapshot(draft);
-        showStatus("Published. Customers can see this menu.");
+        if (data.github && data.github.ok) {
+          showStatus("Published. Customers can see this menu. Also saved on GitHub.");
+        } else if (data.github && data.github.error) {
+          showStatus("Published for customers. GitHub sync failed: " + data.github.error);
+        } else if (data.github && data.github.skipped) {
+          showStatus("Published. Customers can see this menu. (Add GITHUB_TOKEN on Netlify to sync GitHub.)");
+        } else {
+          showStatus("Published. Customers can see this menu.");
+        }
         refreshPublish();
       });
     }).catch(function (error) {

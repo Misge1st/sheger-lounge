@@ -5,3 +5,8 @@ __pycache__/
 *.local
 .DS_Store
 Thumbs.db
+
+site/node_modules/
+site/package.json
+site/package-lock.json
+site/_build/

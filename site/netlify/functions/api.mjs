@@ -156,13 +156,13 @@ var DEFAULT_RETRY_DELAY = getEnvironment().get("NODE_ENV") === "test" ? 1 : 5e3;
 var MIN_RETRY_DELAY = 1e3;
 var MAX_RETRY = 5;
 var RATE_LIMIT_HEADER = "X-RateLimit-Reset";
-var fetchAndRetry = async (fetch, url, options, attemptsLeft = MAX_RETRY) => {
+var fetchAndRetry = async (fetch2, url, options, attemptsLeft = MAX_RETRY) => {
   try {
-    const res = await fetch(url, options);
+    const res = await fetch2(url, options);
     if (attemptsLeft > 0 && (res.status === 429 || res.status >= 500)) {
       const delay = getDelay(res.headers.get(RATE_LIMIT_HEADER));
       await sleep(delay);
-      return fetchAndRetry(fetch, url, options, attemptsLeft - 1);
+      return fetchAndRetry(fetch2, url, options, attemptsLeft - 1);
     }
     return res;
   } catch (error) {
@@ -171,7 +171,7 @@ var fetchAndRetry = async (fetch, url, options, attemptsLeft = MAX_RETRY) => {
     }
     const delay = getDelay();
     await sleep(delay);
-    return fetchAndRetry(fetch, url, options, attemptsLeft - 1);
+    return fetchAndRetry(fetch2, url, options, attemptsLeft - 1);
   }
 };
 var getDelay = (rateLimitReset) => {
@@ -185,11 +185,11 @@ var sleep = (ms) => new Promise((resolve) => {
 });
 var SIGNED_URL_ACCEPT_HEADER = "application/json;type=signed-url";
 var Client = class {
-  constructor({ apiURL, consistency, edgeURL, fetch, region, siteID, token, uncachedEdgeURL }) {
+  constructor({ apiURL, consistency, edgeURL, fetch: fetch2, region, siteID, token, uncachedEdgeURL }) {
     this.apiURL = apiURL;
     this.consistency = consistency ?? "eventual";
     this.edgeURL = edgeURL;
-    this.fetch = fetch ?? globalThis.fetch;
+    this.fetch = fetch2 ?? globalThis.fetch;
     this.region = region;
     this.siteID = siteID;
     this.token = token;
@@ -784,7 +784,7 @@ var getStore = (input, options) => {
   );
 };
 
-// api-source.mjs
+// netlify/api-source.mjs
 var DEFAULT_MAPS = "https://maps.app.goo.gl/qZxyPVoW5e4ZdFVg8?g_st=ic";
 function staffPassword() {
   try {
@@ -795,6 +795,16 @@ function staffPassword() {
   } catch (error) {
   }
   return process.env.ADMIN_PASSWORD || "";
+}
+function env(name) {
+  try {
+    if (globalThis.Netlify && Netlify.env) {
+      const value = Netlify.env.get(name);
+      if (value) return value;
+    }
+  } catch (error) {
+  }
+  return process.env[name] || "";
 }
 function same(a, b) {
   if (typeof a !== "string" || typeof b !== "string" || !a || a.length !== b.length) return false;
@@ -915,6 +925,88 @@ function authorized(req) {
   const token = header.indexOf("Bearer ") === 0 ? header.slice(7) : "";
   return same(token, expected) ? "ok" : "no";
 }
+function menuForGitHub(menu) {
+  const copy = JSON.parse(JSON.stringify(menu));
+  (copy.food || []).forEach(function(item) {
+    const match = String(item.image || "").match(/^\/api\/photo\?id=([a-z0-9-]+)$/i);
+    if (match) item.image = "photos/" + match[1] + ".jpg";
+  });
+  return copy;
+}
+function githubConfig() {
+  const token = env("GITHUB_TOKEN");
+  const repo = env("GITHUB_REPO") || "Misge1st/sheger-lounge";
+  const branch = env("GITHUB_BRANCH") || "main";
+  if (!token) return null;
+  return { token, repo, branch };
+}
+function toBase64(bytes) {
+  if (typeof Buffer !== "undefined") {
+    return Buffer.from(bytes).toString("base64");
+  }
+  let binary = "";
+  const view = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  for (let i = 0; i < view.length; i += 1) binary += String.fromCharCode(view[i]);
+  return btoa(binary);
+}
+async function githubGetSha(cfg, path) {
+  const res = await fetch(
+    "https://api.github.com/repos/" + cfg.repo + "/contents/" + path + "?ref=" + encodeURIComponent(cfg.branch),
+    {
+      headers: {
+        Authorization: "Bearer " + cfg.token,
+        Accept: "application/vnd.github+json",
+        "User-Agent": "sheger-lounge"
+      }
+    }
+  );
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error("GitHub read failed (" + res.status + "): " + text.slice(0, 160));
+  }
+  const data = await res.json();
+  return data.sha || null;
+}
+async function githubPutFile(cfg, path, contentBase64, message) {
+  const sha = await githubGetSha(cfg, path);
+  const body = {
+    message,
+    content: contentBase64,
+    branch: cfg.branch
+  };
+  if (sha) body.sha = sha;
+  const res = await fetch("https://api.github.com/repos/" + cfg.repo + "/contents/" + path, {
+    method: "PUT",
+    headers: {
+      Authorization: "Bearer " + cfg.token,
+      Accept: "application/vnd.github+json",
+      "Content-Type": "application/json",
+      "User-Agent": "sheger-lounge"
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error("GitHub write failed (" + res.status + "): " + text.slice(0, 160));
+  }
+  return true;
+}
+async function syncMenuToGitHub(menu) {
+  const cfg = githubConfig();
+  if (!cfg) return { ok: false, skipped: true };
+  const text = JSON.stringify(menuForGitHub(menu), null, 2) + "\n";
+  const encoded = typeof Buffer !== "undefined" ? Buffer.from(text, "utf8").toString("base64") : btoa(unescape(encodeURIComponent(text)));
+  await githubPutFile(cfg, "site/data/menu.json", encoded, "Update menu from Sheger Lounge staff");
+  return { ok: true };
+}
+async function syncPhotoToGitHub(photoId, bytes) {
+  const cfg = githubConfig();
+  if (!cfg) return { ok: false, skipped: true };
+  const path = "site/photos/" + photoId + ".jpg";
+  await githubPutFile(cfg, path, toBase64(bytes), "Update photo " + photoId + " from staff");
+  return { ok: true };
+}
 async function loadOrders(store) {
   const data = await store.get("orders", { type: "json" });
   if (!data || !Array.isArray(data.orders)) return { nextId: 1001, orders: [] };
@@ -1007,7 +1099,13 @@ async function handler(req) {
       return json({ error: error.message || "The menu could not be read." }, 400);
     }
     await store.setJSON("menu", body);
-    return json({ ok: true });
+    let github = { ok: false, skipped: true };
+    try {
+      github = await syncMenuToGitHub(body);
+    } catch (error) {
+      github = { ok: false, error: error.message || "GitHub sync failed." };
+    }
+    return json({ ok: true, github });
   }
   if (path.endsWith("/photo") && req.method === "GET") {
     const id = url.searchParams.get("id") || "";
@@ -1029,7 +1127,13 @@ async function handler(req) {
     const stamp = Date.now().toString();
     const stored = (id + "-" + stamp).slice(0, 60);
     await store.set("photo:" + stored, bytes);
-    return json({ image: "/api/photo?id=" + stored });
+    let github = { ok: false, skipped: true };
+    try {
+      github = await syncPhotoToGitHub(stored, bytes);
+    } catch (error) {
+      github = { ok: false, error: error.message || "GitHub photo sync failed." };
+    }
+    return json({ image: "/api/photo?id=" + stored, github });
   }
   if (path.endsWith("/orders/count") && req.method === "GET") {
     const data = await loadOrders(store);
