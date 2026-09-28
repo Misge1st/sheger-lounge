@@ -636,8 +636,10 @@
         body: blob
       });
     }).then(function (res) {
-      return res.json().then(function (data) {
-        if (!res.ok) throw new Error((data && data.error) || "The file was not saved.");
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        if (!res.ok) {
+          throw new Error((data && data.error) || ("Upload failed (" + res.status + "). Try again after a refresh."));
+        }
         draft.home.media.unshift({
           id: data.id,
           type: data.type || type,

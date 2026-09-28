@@ -1171,7 +1171,7 @@ async function handler(req) {
     }
     return json({ image: "/api/photo?id=" + stored, github });
   }
-  if (path.endsWith("/home-media") && req.method === "GET") {
+  if ((/\/home-media\/?$/.test(path) || path.indexOf("/home-media") >= 0) && req.method === "GET") {
     const id = url.searchParams.get("id") || "";
     if (!/^[a-z0-9-]{1,60}$/.test(id)) return new Response(null, { status: 404 });
     const bytes = await store.get("home:" + id, { type: "arrayBuffer" });
@@ -1180,7 +1180,7 @@ async function handler(req) {
     const kind = mediaTypeFromBytes(view) || { type: "photo", contentType: "application/octet-stream" };
     return new Response(bytes, { headers: { "content-type": kind.contentType, "cache-control": "no-store" } });
   }
-  if (path.endsWith("/home-media") && req.method === "POST") {
+  if ((/\/home-media\/?$/.test(path) || path.indexOf("/home-media") >= 0) && req.method === "POST") {
     const gate = authorized(req);
     if (gate === "missing") return json({ error: "Set ADMIN_PASSWORD in the Netlify site settings, then publish again." }, 503);
     if (gate !== "ok") return json({ error: "That password is not right." }, 401);
