@@ -532,7 +532,11 @@
       video.controls = true;
       video.autoplay = true;
       video.playsInline = true;
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "");
+      video.preload = "auto";
       media.appendChild(video);
+      video.play().catch(function () {});
     } else {
       var img = document.createElement("img");
       img.src = item.src;
@@ -587,7 +591,11 @@
         video.src = item.src;
         video.muted = true;
         video.playsInline = true;
+        video.setAttribute("playsinline", "");
         video.preload = "metadata";
+        video.addEventListener("loadeddata", function () {
+          try { video.currentTime = Math.min(0.2, (video.duration || 1) * 0.05); } catch (e) {}
+        });
         figure.appendChild(video);
       } else {
         var img = document.createElement("img");

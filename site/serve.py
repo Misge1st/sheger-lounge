@@ -122,9 +122,43 @@ def media_kind(raw):
         return ("photo", "image/png")
     if raw[:4] == b"\x1aE\xdf\xa3":
         return ("video", "video/webm")
-    if b"ftyp" in raw[4:12]:
+    if raw[4:8] == b"ftyp":
         return ("video", "video/mp4")
     return None
+
+
+def send_binary(handler, raw, content_type):
+    total = len(raw)
+    range_header = handler.headers.get("Range") or handler.headers.get("range")
+    if range_header:
+        match = re.match(r"bytes=(\d*)-(\d*)", range_header.strip(), re.I)
+        if match:
+            start = int(match.group(1) or 0)
+            end = int(match.group(2) or (total - 1))
+            if start < 0 or start >= total or end < start:
+                handler.send_response(416)
+                handler.send_header("Content-Range", "bytes */%d" % total)
+                handler.send_header("Accept-Ranges", "bytes")
+                handler.end_headers()
+                return
+            end = min(end, total - 1)
+            chunk = raw[start:end + 1]
+            handler.send_response(206)
+            handler.send_header("Content-Type", content_type)
+            handler.send_header("Content-Range", "bytes %d-%d/%d" % (start, end, total))
+            handler.send_header("Accept-Ranges", "bytes")
+            handler.send_header("Content-Length", str(len(chunk)))
+            handler.send_header("Cache-Control", "public, max-age=3600")
+            handler.end_headers()
+            handler.wfile.write(chunk)
+            return
+    handler.send_response(200)
+    handler.send_header("Content-Type", content_type)
+    handler.send_header("Accept-Ranges", "bytes")
+    handler.send_header("Content-Length", str(total))
+    handler.send_header("Cache-Control", "public, max-age=3600")
+    handler.end_headers()
+    handler.wfile.write(raw)
 
 
 def clean_menu(body):
@@ -553,12 +587,7 @@ class Handler(SimpleHTTPRequestHandler):
                 with open(path, "rb") as handle:
                     raw = handle.read()
                 kind = media_kind(raw) or ("photo", "application/octet-stream")
-                self.send_response(200)
-                self.send_header("Content-Type", kind[1])
-                self.send_header("Cache-Control", "no-store")
-                self.send_header("Content-Length", str(len(raw)))
-                self.end_headers()
-                self.wfile.write(raw)
+                send_binary(self, raw, kind[1])
                 return
         self.send_error(404)
 

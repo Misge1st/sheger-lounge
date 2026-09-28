@@ -950,9 +950,41 @@ function mediaTypeFromBytes(bytes) {
   if (bytes[0] === 26 && bytes[1] === 69 && bytes[2] === 223 && bytes[3] === 163) {
     return { type: "video", contentType: "video/webm" };
   }
-  const head = String.fromCharCode.apply(null, Array.prototype.slice.call(bytes.slice(4, 12)));
-  if (head.indexOf("ftyp") >= 0) return { type: "video", contentType: "video/mp4" };
+  if (bytes[4] === 102 && bytes[5] === 116 && bytes[6] === 121 && bytes[7] === 112) {
+    return { type: "video", contentType: "video/mp4" };
+  }
   return null;
+}
+function serveBinary(req, bytes, contentType) {
+  const view = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  const total = view.byteLength;
+  const headers = {
+    "Content-Type": contentType,
+    "Accept-Ranges": "bytes",
+    "Cache-Control": "public, max-age=3600",
+    "X-Content-Type-Options": "nosniff"
+  };
+  const range = req.headers.get("range") || req.headers.get("Range");
+  if (range) {
+    const match = /^bytes=(\d*)-(\d*)$/i.exec(String(range).trim());
+    if (match) {
+      let start = match[1] === "" ? 0 : Number(match[1]);
+      let end = match[2] === "" ? total - 1 : Number(match[2]);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || end < start || start >= total) {
+        return new Response(null, {
+          status: 416,
+          headers: { "Content-Range": "bytes */" + total, "Accept-Ranges": "bytes" }
+        });
+      }
+      if (end >= total) end = total - 1;
+      const slice = view.subarray(start, end + 1);
+      headers["Content-Range"] = "bytes " + start + "-" + end + "/" + total;
+      headers["Content-Length"] = String(slice.byteLength);
+      return new Response(slice, { status: 206, headers });
+    }
+  }
+  headers["Content-Length"] = String(total);
+  return new Response(view, { status: 200, headers });
 }
 function authorized(req) {
   const expected = staffPassword();
@@ -1171,14 +1203,25 @@ async function handler(req) {
     }
     return json({ image: "/api/photo?id=" + stored, github });
   }
-  if ((/\/home-media\/?$/.test(path) || path.indexOf("/home-media") >= 0) && req.method === "GET") {
+  if ((/\/home-media\/?$/.test(path) || path.indexOf("/home-media") >= 0) && (req.method === "GET" || req.method === "HEAD")) {
     const id = url.searchParams.get("id") || "";
     if (!/^[a-z0-9-]{1,60}$/.test(id)) return new Response(null, { status: 404 });
     const bytes = await store.get("home:" + id, { type: "arrayBuffer" });
     if (!bytes) return new Response(null, { status: 404 });
     const view = new Uint8Array(bytes);
     const kind = mediaTypeFromBytes(view) || { type: "photo", contentType: "application/octet-stream" };
-    return new Response(bytes, { headers: { "content-type": kind.contentType, "cache-control": "no-store" } });
+    if (req.method === "HEAD") {
+      return new Response(null, {
+        status: 200,
+        headers: {
+          "Content-Type": kind.contentType,
+          "Content-Length": String(view.byteLength),
+          "Accept-Ranges": "bytes",
+          "Cache-Control": "public, max-age=3600"
+        }
+      });
+    }
+    return serveBinary(req, view, kind.contentType);
   }
   if ((/\/home-media\/?$/.test(path) || path.indexOf("/home-media") >= 0) && req.method === "POST") {
     const gate = authorized(req);
