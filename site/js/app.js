@@ -518,8 +518,8 @@
     setCats(drinks ? "drinks" : "food");
     if (norm(searchInput.value)) document.getElementById("cats").hidden = true;
     if (scrollMenu) {
-      var menu = document.getElementById("menu");
-      if (menu) menu.scrollIntoView({ behavior: "smooth", block: "start" });
+      var order = document.getElementById("order");
+      if (order) order.scrollIntoView({ behavior: "smooth", block: "start" });
     }
     closeMobileNav();
   }
@@ -632,7 +632,7 @@
     link.addEventListener("click", function () {
       closeMobileNav();
       var id = link.getAttribute("data-nav");
-      if (id === "menu") showTab(document.body.classList.contains("drinks") ? "drinks" : "food", false);
+      if (id === "order") showTab(document.body.classList.contains("drinks") ? "drinks" : "food", false);
     });
   });
 
@@ -977,9 +977,73 @@
     if (e.key === "Escape") closeHomeLightbox();
   });
 
+  function bookName(item) {
+    var am = item.am ? " <span class='am'>" + esc(item.am) + "</span>" : "";
+    var off = item.available === false ? " <span class='tag-off'>Unavailable</span>" : "";
+    return esc(item.name) + am + off;
+  }
+
+  function bookRow(nameHtml, price, size) {
+    return "<div class='book-row" + (size ? " is-size" : "") + "'><span class='book-name'>" + nameHtml + "</span><span class='book-dots'></span><span class='book-price'>" + esc(price) + "</span></div>";
+  }
+
+  function bookGroup(item) {
+    var rows = "";
+    if (item.sizes) {
+      rows = item.sizes.map(function (size) {
+        return bookRow(esc(size.name), size.price, true);
+      }).join("");
+    } else if (item.rows) {
+      rows = item.rows.map(function (row) {
+        return bookRow(esc(row.name), row.price, false);
+      }).join("");
+    } else if (item.price) {
+      rows = bookRow(bookName(item), item.price, false);
+    }
+    var klass = item.feature ? " book-feature" : "";
+    if (item.sizes || item.rows) {
+      return "<div class='book-group" + klass + "'><h3>" + bookName(item) + "</h3>" + rows + "</div>";
+    }
+    return "<div class='book-group" + klass + "'>" + rows + "</div>";
+  }
+
+  function renderBook() {
+    var foodRoot = document.getElementById("book-food");
+    var drinkRoot = document.getElementById("book-drinks");
+    if (!foodRoot || !drinkRoot || !MENU) return;
+    var meats = MENU.food.filter(function (item) { return item.category === "Meats"; });
+    var dishes = MENU.food.filter(function (item) { return item.category === "Dishes"; });
+    var fasting = MENU.food.filter(function (item) { return item.category === "Fasting"; });
+    foodRoot.innerHTML =
+      "<div class='book-cols'><div>" + meats.map(bookGroup).join("") + "</div><div>" + dishes.map(bookGroup).join("") + "</div></div>" +
+      "<div class='book-fast'><h3>FASTING <span class='am'>የፆም ምግቦች</span></h3><div class='book-cols'><div>" +
+      fasting.filter(function (_, i) { return i % 2 === 0; }).map(bookGroup).join("") +
+      "</div><div>" +
+      fasting.filter(function (_, i) { return i % 2 === 1; }).map(bookGroup).join("") +
+      "</div></div></div>";
+
+    var leftDrinks = ["Black Label", "Gordon's", "Jägermeister", "Red Label", "Amarula"];
+    var drinks = MENU.drinks || [];
+    var left = drinks.filter(function (item) { return leftDrinks.indexOf(item.name) !== -1; });
+    var right = drinks.filter(function (item) { return leftDrinks.indexOf(item.name) === -1; });
+    drinkRoot.innerHTML = "<div class='book-cols'><div>" + left.map(bookGroup).join("") + "</div><div>" + right.map(bookGroup).join("") + "</div></div>";
+
+    document.querySelectorAll("[data-book]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var which = btn.getAttribute("data-book");
+        document.querySelectorAll("[data-book]").forEach(function (other) {
+          other.setAttribute("aria-pressed", other === btn ? "true" : "false");
+        });
+        foodRoot.hidden = which !== "food";
+        drinkRoot.hidden = which !== "drinks";
+      });
+    });
+  }
+
   function boot() {
     MENU = window.SHEGER_MENU;
     applyInfo(MENU.info);
+    renderBook();
     renderFood();
     renderDrinks();
     paintHome();

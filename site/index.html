@@ -445,8 +445,143 @@
   }
 
   /* Menu */
-  #menu {
+  #menu,
+  #order {
     background: var(--ivory-deep);
+  }
+  .book-switch {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 22px;
+    max-width: 360px;
+  }
+  .book-switch button {
+    flex: 1;
+    border: 1px solid var(--gold-line);
+    background: var(--ivory);
+    color: var(--espresso);
+    font-family: var(--ui);
+    font-weight: 650;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 13px;
+    padding: 10px 12px;
+    cursor: pointer;
+  }
+  .book-switch button[aria-pressed="true"] {
+    background: var(--terracotta);
+    border-color: var(--terracotta);
+    color: #fffaf3;
+  }
+  .menu-book {
+    max-width: 980px;
+    margin: 0 auto;
+    background: var(--ivory);
+    color: var(--espresso);
+    border: 1px solid var(--gold-line);
+    padding: 22px 22px 18px;
+    box-shadow: 0 16px 40px rgba(44, 30, 24, 0.06);
+  }
+  .book-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 36px;
+  }
+  .book-group { margin: 0 0 10px; }
+  .book-group h3 {
+    margin: 0 0 2px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid var(--gold);
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--espresso);
+  }
+  .book-group h3 .am {
+    font-family: Ebrima, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-left: 6px;
+    letter-spacing: 0;
+  }
+  .book-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-height: 28px;
+  }
+  .book-row.is-size { padding-left: 10px; }
+  .book-row.is-size .book-name {
+    font-style: italic;
+    color: #6b5348;
+    font-size: 17px;
+  }
+  .book-name {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.25;
+  }
+  .book-name .am {
+    font-family: Ebrima, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-left: 6px;
+    color: #6b5348;
+  }
+  .book-dots {
+    flex: 1;
+    border-bottom: 1px dotted rgba(184, 137, 58, 0.7);
+    transform: translateY(-4px);
+    min-width: 12px;
+  }
+  .book-price {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 20px;
+    font-variant-numeric: tabular-nums;
+    min-width: 4.2em;
+    text-align: right;
+    color: var(--espresso);
+  }
+  .book-feature {
+    border-top: 1px solid var(--gold);
+    border-bottom: 1px solid var(--gold);
+    background: rgba(184, 74, 39, 0.08);
+    padding: 0 6px;
+    margin: 2px 0;
+  }
+  .book-fast {
+    margin-top: 16px;
+    padding: 12px 12px 6px;
+    border: 1px solid var(--gold);
+  }
+  .book-fast > h3 {
+    text-align: center;
+    margin: 0 0 8px;
+    font-family: var(--display);
+    font-size: 18px;
+    letter-spacing: 0.18em;
+    color: var(--terracotta);
+  }
+  .book-fast > h3 .am {
+    font-family: Ebrima, sans-serif;
+    letter-spacing: 0;
+    font-size: 15px;
+    margin-left: 8px;
+    color: #6b5348;
+  }
+  .book-order {
+    text-align: center;
+    margin: 22px 0 0;
+  }
+  .tag-off { font-size: 12px; letter-spacing: 0.04em; color: var(--terracotta); margin-left: 6px; }
+  @media (max-width: 760px) {
+    .book-cols { grid-template-columns: 1fr; gap: 4px; }
+    .menu-book { padding: 16px 14px 12px; }
+    .book-name, .book-price { font-size: 18px; }
   }
   .menu-shell {
     max-width: 820px;
@@ -1337,7 +1472,7 @@
     <a href="#gallery" data-nav="gallery">Gallery</a>
     <a href="#contact" data-nav="contact">Contact</a>
   </nav>
-  <a class="order-cta" href="#menu" data-go="food">Order Online</a>
+  <a class="order-cta" href="#order" data-go="food">Order Online</a>
 </header>
 
 <section class="hero" id="top">
@@ -1348,7 +1483,7 @@
     <h1>Ethiopian dining in Kazanchis</h1>
     <p class="lede">Fire-grilled kurt, kitfo, fasting plates, and a full drinks list — prepared for the table or delivered across Addis.</p>
     <div class="hero-actions home-actions">
-      <button type="button" class="btn-primary to-food" data-go="food">View Menu</button>
+      <a class="btn-primary" href="#menu">View Menu</a>
       <a class="btn-ghost phone" data-slot="0" href="tel:+251909499994">Call 0909499994</a>
     </div>
   </div>
@@ -1390,11 +1525,28 @@
 
 <section class="band" id="menu">
   <div class="band-inner">
+    <div class="menu-head reveal">
+      <p class="band-kicker">The list</p>
+      <h2 class="band-title">Menu</h2>
+      <p class="band-lede">The same food and drinks list as our printed menu, with prices in birr. Nothing is added from here.</p>
+    </div>
+    <div class="book-switch" role="tablist" aria-label="Menu pages">
+      <button type="button" data-book="food" aria-pressed="true">Food</button>
+      <button type="button" data-book="drinks" aria-pressed="false">Drinks</button>
+    </div>
+    <div class="menu-book" id="book-food"></div>
+    <div class="menu-book" id="book-drinks" hidden></div>
+    <p class="book-order"><a class="btn-primary" href="#order" data-go="food">Order Online</a></p>
+  </div>
+</section>
+
+<section class="band" id="order">
+  <div class="band-inner">
     <div class="menu-shell">
       <div class="menu-head reveal">
-        <p class="band-kicker">From the kitchen</p>
-        <h2 class="band-title">Our Menu</h2>
-        <p class="band-lede">Regular meats and dishes, fasting plates, and drinks. Tap a photo for details, then add items to your order.</p>
+        <p class="band-kicker">Delivery</p>
+        <h2 class="band-title">Order Online</h2>
+        <p class="band-lede">Choose a dish and tap Add. Your order is sent when you finish checkout.</p>
       </div>
 
       <div class="dock">
