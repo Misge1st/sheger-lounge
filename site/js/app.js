@@ -226,34 +226,48 @@
     return plate;
   }
 
+  function appendFoodItems(block, list) {
+    var i = 0;
+    while (i < list.length) {
+      var item = list[i];
+      var next = list[i + 1];
+      if (item.share && next && next.share && next.image === item.image) {
+        block.appendChild(makePair(item, next));
+        i += 2;
+      } else {
+        block.appendChild(makePlate(item));
+        i += 1;
+      }
+    }
+  }
+
   function renderFood() {
     var root = document.getElementById("food");
     root.innerHTML = "";
-    ["Meats", "Dishes", "Fasting"].forEach(function (cat) {
-      var block = document.createElement("div");
-      block.className = "cat-block";
-      block.id = "cat-" + cat.toLowerCase();
-      if (cat === "Fasting") {
-        var h = document.createElement("h3");
-        h.className = "fast-label";
-        h.innerHTML = "FASTING <span>የፆም ምግቦች</span>";
-        block.appendChild(h);
-      }
-      var list = MENU.food.filter(function (item) { return item.category === cat; });
-      var i = 0;
-      while (i < list.length) {
-        var item = list[i];
-        var next = list[i + 1];
-        if (item.share && next && next.share && next.image === item.image) {
-          block.appendChild(makePair(item, next));
-          i += 2;
-        } else {
-          block.appendChild(makePlate(item));
-          i += 1;
-        }
-      }
-      root.appendChild(block);
-    });
+
+    var regular = document.createElement("div");
+    regular.className = "cat-block";
+    regular.id = "cat-regular";
+    var regularHeading = document.createElement("h3");
+    regularHeading.className = "section-label";
+    regularHeading.innerHTML = "REGULAR <span>መደበኛ</span>";
+    regular.appendChild(regularHeading);
+    appendFoodItems(regular, MENU.food.filter(function (item) {
+      return item.category === "Meats" || item.category === "Dishes";
+    }));
+    root.appendChild(regular);
+
+    var fasting = document.createElement("div");
+    fasting.className = "cat-block";
+    fasting.id = "cat-fasting";
+    var fastingHeading = document.createElement("h3");
+    fastingHeading.className = "fast-label";
+    fastingHeading.innerHTML = "FASTING <span>የፆም ምግቦች</span>";
+    fasting.appendChild(fastingHeading);
+    appendFoodItems(fasting, MENU.food.filter(function (item) {
+      return item.category === "Fasting";
+    }));
+    root.appendChild(fasting);
   }
 
   function renderDrinks() {
@@ -291,7 +305,7 @@
     var bar = document.getElementById("cats");
     var list = which === "drinks"
       ? [["spirits", "Spirits"], ["soft", "Soft drinks"]]
-      : [["meats", "Meats"], ["dishes", "Dishes"], ["fasting", "Fasting"]];
+      : [["regular", "Regular"], ["fasting", "Fasting"]];
     bar.innerHTML = "";
     list.forEach(function (pair, index) {
       var button = document.createElement("button");
@@ -802,7 +816,7 @@
     } else {
       var img = document.createElement("img");
       img.src = src;
-      img.alt = item.caption || "Sheger Lounge";
+      img.alt = item.caption || "Elo Restaurant";
       media.appendChild(img);
     }
     caption.textContent = item.caption || "";
@@ -850,11 +864,11 @@
       figure.appendChild(kind);
       var src = resolveHomeSrc(item);
       if (item.type === "video") {
-        paintVideoThumb(figure, src, item.caption || "Sheger Lounge video");
+        paintVideoThumb(figure, src, item.caption || "Elo Restaurant video");
       } else {
         var img = document.createElement("img");
         img.src = src;
-        img.alt = item.caption || "Sheger Lounge";
+        img.alt = item.caption || "Elo Restaurant";
         img.loading = "lazy";
         figure.appendChild(img);
       }

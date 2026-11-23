@@ -3,31 +3,13 @@
     "address": "አድራሻ: ካሳንቺስ ዑራኤል ቤ/ክ ፊት ለፊት ስፖርት ፓርክ አጠገብ",
     "maps": "https://maps.app.goo.gl/qZxyPVoW5e4ZdFVg8?g_st=ic",
     "phones": [
-      "251 911 59 70 29",
-      "0909 05 10 24"
+      "0909499994",
+      "096 382 4782"
     ],
     "tiktok": "@sheger_kurt",
     "deliveryFee": "100"
   },
   "food": [
-    {
-      "category": "Meats",
-      "id": "kurt",
-      "name": "Kurt",
-      "am": "ቁርጥ",
-      "image": "photos/kurt.jpg",
-      "available": true,
-      "sizes": [
-        {
-          "name": "1 kg",
-          "price": "3,950"
-        },
-        {
-          "name": "1/2 kg",
-          "price": "1,950"
-        }
-      ]
-    },
     {
       "category": "Meats",
       "id": "gas-light",
@@ -114,26 +96,6 @@
     },
     {
       "category": "Dishes",
-      "id": "ariza",
-      "name": "Ariza",
-      "am": "አርዛ",
-      "image": "photos/ariza.jpg",
-      "available": true,
-      "share": true,
-      "price": "1,150"
-    },
-    {
-      "category": "Dishes",
-      "id": "zumbara",
-      "name": "Zumbara",
-      "am": "ዙምብራ",
-      "image": "photos/ariza.jpg",
-      "available": true,
-      "share": true,
-      "price": "1,050"
-    },
-    {
-      "category": "Dishes",
       "id": "normal-kitfo",
       "name": "Normal Kitfo",
       "am": "ኖርማል ክትፎ",
@@ -149,24 +111,6 @@
       "image": "photos/special-kitfo.jpg",
       "available": true,
       "price": "2,675"
-    },
-    {
-      "category": "Dishes",
-      "id": "scrambled-egg",
-      "name": "Scrambled Egg",
-      "am": "እንቁላል ፍርፍር",
-      "image": "photos/scrambled-egg.jpg",
-      "available": true,
-      "price": "360"
-    },
-    {
-      "category": "Dishes",
-      "id": "dulet",
-      "name": "Dulet",
-      "am": "ዱለት",
-      "image": "photos/dulet.jpg",
-      "available": true,
-      "price": "510"
     },
     {
       "category": "Dishes",
@@ -197,18 +141,36 @@
     },
     {
       "category": "Dishes",
-      "id": "special-yetsom",
-      "name": "Special Yetsom Firfir",
-      "am": "ስፔሻል የፆም ፍርፍር",
-      "image": "photos/special-yetsom.jpg",
+      "id": "qiqil",
+      "name": "Qiqil",
+      "am": "ቅቅል",
+      "image": "photos/qiqil.jpg",
       "available": true,
-      "price": "500"
+      "price": "700"
+    },
+    {
+      "category": "Dishes",
+      "id": "scrambled-egg",
+      "name": "Scrambled Egg",
+      "am": "እንቁላል ፍርፍር",
+      "image": "photos/scrambled-egg.jpg",
+      "available": true,
+      "price": "360"
+    },
+    {
+      "category": "Dishes",
+      "id": "dulet",
+      "name": "Dulet",
+      "am": "ዱለት",
+      "image": "photos/dulet.jpg",
+      "available": true,
+      "price": "510"
     },
     {
       "category": "Dishes",
       "id": "combo",
-      "name": "Sheger Special Combo",
-      "am": "ሸገር ስፔሻል ኮምቦ",
+      "name": "Elo Special Combo",
+      "am": "ኤሎ ስፔሻል ኮምቦ",
       "image": "photos/combo.jpg",
       "available": true,
       "feature": true,
@@ -234,37 +196,19 @@
     },
     {
       "category": "Fasting",
-      "id": "atikilt",
-      "name": "Atikilt Firfir",
-      "am": "አትክልት ፍርፍር",
-      "image": "photos/atikilt.jpg",
-      "available": true,
-      "price": "350"
-    },
-    {
-      "category": "Fasting",
-      "id": "shiro",
-      "name": "Shiro Feses",
-      "am": "ሽሮ ፈሰስ",
-      "image": "photos/shiro.jpg",
-      "available": true,
-      "price": "300"
-    },
-    {
-      "category": "Fasting",
-      "id": "gomen-tibs",
-      "name": "Gomen Tibs",
-      "am": "ጎመን ጥብስ",
-      "image": "photos/gomen-tibs.jpg",
-      "available": true,
-      "price": "350"
-    },
-    {
-      "category": "Fasting",
       "id": "tegabino",
       "name": "Tegabino",
       "am": "ተጋቢኖ",
       "image": "photos/tegabino.jpg",
+      "available": true,
+      "price": "350"
+    },
+    {
+      "category": "Fasting",
+      "id": "atikilt",
+      "name": "Atikilt Firfir",
+      "am": "አትክልት ፍርፍር",
+      "image": "photos/atikilt.jpg",
       "available": true,
       "price": "350"
     },
@@ -279,6 +223,15 @@
     },
     {
       "category": "Fasting",
+      "id": "shiro",
+      "name": "Shiro Feses",
+      "am": "ሽሮ ፈሰስ",
+      "image": "photos/shiro.jpg",
+      "available": true,
+      "price": "300"
+    },
+    {
+      "category": "Fasting",
       "id": "gomen-kitfo",
       "name": "Gomen Kitfo",
       "am": "ጎመን ክትፎ",
@@ -288,12 +241,21 @@
     },
     {
       "category": "Fasting",
-      "id": "spring-roll",
-      "name": "Spring Roll",
-      "am": "ስፕሪንግ ሮል",
-      "image": "photos/spring-roll.jpg",
+      "id": "gomen-tibs",
+      "name": "Gomen Tibs",
+      "am": "ጎመን ጥብስ",
+      "image": "photos/gomen-tibs.jpg",
       "available": true,
       "price": "350"
+    },
+    {
+      "category": "Fasting",
+      "id": "special-yetsom",
+      "name": "Special Yetsom Firfir",
+      "am": "ስፔሻል የፆም ፍርፍር",
+      "image": "photos/special-yetsom.jpg",
+      "available": true,
+      "price": "500"
     }
   ],
   "drinks": [

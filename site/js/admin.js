@@ -496,7 +496,7 @@
     form.appendChild(field("Google Maps link", input("maps", info.maps, "https://")));
     form.appendChild(field("Delivery phone 1", input("phone1", phones[0], "")));
     form.appendChild(field("Delivery phone 2", input("phone2", phones[1], "")));
-    form.appendChild(field("TikTok", input("tiktok", info.tiktok, "@sheger_kurt")));
+    form.appendChild(field("TikTok", input("tiktok", info.tiktok, "@")));
     form.appendChild(field("Delivery fee (ETB)", input("deliveryFee", info.deliveryFee || "100", "100")));
     var note = document.createElement("p");
     note.className = "muted";

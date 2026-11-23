@@ -4,9 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#070707">
-<title>Sheger Lounge — Staff</title>
+<meta name="theme-color" content="#100808">
+<title>Elo Restaurant — Staff</title>
 <style>
+  @font-face { font-family: "Constantia"; src: url("fonts/constantia.ttf") format("truetype"); font-weight: 400; }
+  @font-face { font-family: "Constantia"; src: url("fonts/constantia-bold.ttf") format("truetype"); font-weight: 700; }
+  @font-face { font-family: "Palatino"; src: url("fonts/palatino.ttf") format("truetype"); font-weight: 400; }
+  @font-face { font-family: "Palatino"; src: url("fonts/palatino-bold.ttf") format("truetype"); font-weight: 700; }
   @font-face { font-family: "BodoniModa"; src: url("fonts/bodoni-italic.ttf") format("truetype"); font-weight: 700; font-style: italic; }
   @font-face { font-family: "Gabriola"; src: url("fonts/gabriola.ttf") format("truetype"); }
   @font-face { font-family: "Cormorant"; src: url("fonts/cormorant-500.ttf") format("truetype"); font-weight: 500; font-style: normal; }
@@ -15,17 +19,17 @@
   @font-face { font-family: "Cormorant"; src: url("fonts/cormorant-700.ttf") format("truetype"); font-weight: 700; font-style: normal; }
 
   :root {
-    --ink: #070707;
-    --gold: #d4af37;
-    --gold-bright: #f0d48a;
+    --ink: #100808;
+    --gold: #d8b84a;
+    --gold-bright: #f3de8a;
     --gold-deep: #a8883a;
-    --gold-line: rgba(212, 175, 55, 0.4);
-    --gold-line-strong: rgba(212, 175, 55, 0.7);
-    --cream: #f6e7c1;
-    --red: #c8102e;
-    --red-deep: #9a0c22;
-    --mute: #b9a06a;
-    --text: #f3dc9a;
+    --gold-line: rgba(216, 184, 74, 0.42);
+    --gold-line-strong: rgba(216, 184, 74, 0.75);
+    --cream: #fff4d6;
+    --red: #b00000;
+    --red-deep: #7a0000;
+    --mute: #e0c88a;
+    --text: #f3de8a;
     --radius: 4px;
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -33,12 +37,12 @@
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: Cormorant, Georgia, "Times New Roman", serif;
-    font-weight: 500;
+    font-family: Constantia, Palatino, Cormorant, Georgia, "Times New Roman", serif;
+    font-weight: 400;
     background:
-      radial-gradient(ellipse at 50% -10%, rgba(200, 16, 46, 0.16), transparent 42%),
-      radial-gradient(ellipse at 80% 60%, rgba(212, 175, 55, 0.05), transparent 40%),
-      #070707;
+      radial-gradient(ellipse at 50% -10%, rgba(176, 0, 0, 0.2), transparent 42%),
+      radial-gradient(ellipse at 80% 60%, rgba(216, 184, 74, 0.06), transparent 40%),
+      #100808;
     color: var(--text);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
@@ -77,26 +81,12 @@
     text-align: center;
     margin-bottom: 28px;
   }
-  .brand .sheger {
-    font-family: BodoniModa, Georgia, serif;
-    font-style: italic;
-    font-weight: 700;
-    font-size: clamp(42px, 12vw, 64px);
-    line-height: 0.85;
-    letter-spacing: 0.08em;
-    color: #ff140c;
-    -webkit-text-stroke: 0.5px #1a0808;
-    paint-order: stroke fill;
-    text-shadow: 2px 3px 0 #120808;
-  }
-  .brand .lounge {
-    font-family: Gabriola, cursive;
-    font-size: clamp(28px, 7vw, 40px);
-    color: #fff;
-    line-height: 0.7;
-    margin-top: -2px;
-    transform: rotate(-5deg);
-    display: inline-block;
+  .brand .brand-logo {
+    width: min(200px, 58vw);
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4));
   }
   .brand .bar {
     width: min(180px, 55%);
@@ -363,12 +353,11 @@
 <body>
 <section id="login">
   <div class="brand" aria-hidden="true">
-    <div class="sheger">SHEGER</div>
-    <div class="lounge">Lounge</div>
+    <img class="brand-logo" src="elo-logo-clean.png" alt="Elo Restaurant">
     <div class="bar"><i></i><span></span></div>
   </div>
   <h1>Staff</h1>
-  <p class="lede">Manage the menu, prices, and orders for Sheger Lounge.</p>
+  <p class="lede">Manage the menu, prices, and orders for Elo Restaurant.</p>
   <div class="login-alert" id="login-alert" hidden>
     <b id="login-count">0</b>
     <div>
@@ -388,8 +377,7 @@
 
 <section id="app" hidden>
   <div class="brand" aria-hidden="true">
-    <div class="sheger">SHEGER</div>
-    <div class="lounge">Lounge</div>
+    <img class="brand-logo" src="elo-logo-clean.png" alt="Elo Restaurant">
     <div class="bar"><i></i><span></span></div>
   </div>
   <div class="top">

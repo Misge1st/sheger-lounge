@@ -23,11 +23,11 @@ ID_OK = re.compile(r"^[a-z0-9-]{1,40}$")
 PHOTO_ID_OK = re.compile(r"^[a-z0-9-]{1,60}$")
 HOME_ID_OK = re.compile(r"^[a-z0-9-]{1,60}$")
 DISHES = {
-    "kurt", "gas-light", "shekla", "senber", "emis-emis", "ariza", "zumbara",
-    "normal-kitfo", "special-kitfo", "scrambled-egg", "dulet", "tibs-firfir",
-    "quanta-firfir", "musina", "special-yetsom", "combo", "yefisik",
-    "yetsom-combo", "atikilt", "shiro", "gomen-tibs", "tegabino", "beyeaynet",
-    "gomen-kitfo", "spring-roll",
+    "gas-light", "shekla", "senber", "emis-emis",
+    "normal-kitfo", "special-kitfo", "tibs-firfir", "quanta-firfir", "musina",
+    "qiqil", "scrambled-egg", "dulet", "combo", "yefisik",
+    "yetsom-combo", "tegabino", "atikilt", "beyeaynet", "shiro",
+    "gomen-kitfo", "gomen-tibs", "special-yetsom",
 }
 
 

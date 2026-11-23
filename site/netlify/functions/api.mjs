@@ -1107,7 +1107,7 @@ async function syncMenuToGitHub(menu) {
   if (!cfg) return { ok: false, skipped: true };
   const text = JSON.stringify(menuForGitHub(menu), null, 2) + "\n";
   const encoded = typeof Buffer !== "undefined" ? Buffer.from(text, "utf8").toString("base64") : btoa(unescape(encodeURIComponent(text)));
-  await githubPutFile(cfg, "site/data/menu.json", encoded, "Update menu from Sheger Lounge staff");
+  await githubPutFile(cfg, "site/data/menu.json", encoded, "Update menu from Elo Restaurant staff");
   return { ok: true };
 }
 async function syncPhotoToGitHub(photoId, bytes) {
