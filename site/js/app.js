@@ -493,9 +493,18 @@
   var searchInput = document.getElementById("q");
   var clearSearch = document.getElementById("clear-search");
   var searchStatus = document.getElementById("search-status");
+  var siteHeader = document.getElementById("site-header");
+  var navToggle = document.getElementById("nav-toggle");
+  var siteNav = document.getElementById("site-nav");
 
-  function showTab(which, scrollTop) {
-    var home = which === "home";
+  function closeMobileNav() {
+    document.body.classList.remove("nav-open");
+    if (navToggle) navToggle.setAttribute("aria-expanded", "false");
+  }
+
+  function showTab(which, scrollMenu) {
+    if (which === "home") which = "food";
+    if (which !== "food" && which !== "drinks") which = "food";
     var drinks = which === "drinks";
     tabs.forEach(function (other) {
       var id = other.getAttribute("aria-controls");
@@ -504,16 +513,15 @@
       var panel = document.getElementById(id);
       if (panel) panel.hidden = !on;
     });
-    document.body.classList.toggle("home", home);
-    document.body.classList.toggle("drinks", drinks && !home);
-    if (!home) {
-      setCats(drinks ? "drinks" : "food");
-      if (norm(searchInput.value)) document.getElementById("cats").hidden = true;
-    } else {
-      document.getElementById("cats").hidden = true;
-      document.getElementById("cats").innerHTML = "";
+    document.body.classList.remove("home");
+    document.body.classList.toggle("drinks", drinks);
+    setCats(drinks ? "drinks" : "food");
+    if (norm(searchInput.value)) document.getElementById("cats").hidden = true;
+    if (scrollMenu) {
+      var menu = document.getElementById("menu");
+      if (menu) menu.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    if (scrollTop) window.scrollTo(0, 0);
+    closeMobileNav();
   }
 
   function setHidden(el, hidden) {
@@ -528,8 +536,12 @@
     var foodHits = 0;
     var drinkHits = 0;
     clearSearch.hidden = !q;
-    if (q && document.body.classList.contains("home")) {
-      showTab("food", false);
+    if (q) {
+      var foodPanel = document.getElementById("food");
+      var drinksPanel = document.getElementById("drinks");
+      if (foodPanel && foodPanel.hidden && drinksPanel && drinksPanel.hidden) {
+        showTab("food", false);
+      }
     }
     document.querySelectorAll("#food .plate").forEach(function (plate) {
       var rows = plate.querySelectorAll("[data-q]");
@@ -564,7 +576,7 @@
       var visible = block.querySelector(".plate:not([hidden]), .drink:not([hidden])");
       block.hidden = !!q && !visible;
     });
-    document.getElementById("cats").hidden = !!q || document.body.classList.contains("home");
+    document.getElementById("cats").hidden = !!q;
     searchStatus.hidden = !q;
     searchStatus.innerHTML = "";
     if (!q) return { food: 0, drinks: 0 };
@@ -594,17 +606,78 @@
 
   tabs.forEach(function (btn) {
     btn.addEventListener("click", function () {
-      var which = btn.getAttribute("aria-controls") || "home";
-      showTab(which, true);
-      if (which !== "home" && norm(searchInput.value)) applySearch(searchInput.value);
+      var which = btn.getAttribute("aria-controls") || "food";
+      showTab(which, false);
+      if (norm(searchInput.value)) applySearch(searchInput.value);
     });
   });
 
-  document.querySelectorAll(".home-actions [data-go]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      showTab(btn.getAttribute("data-go"), true);
+  document.querySelectorAll("[data-go]").forEach(function (btn) {
+    btn.addEventListener("click", function (event) {
+      var target = btn.getAttribute("data-go") || "food";
+      if (btn.tagName === "A") event.preventDefault();
+      showTab(target, true);
     });
   });
+
+  if (navToggle) {
+    navToggle.addEventListener("click", function () {
+      var open = !document.body.classList.contains("nav-open");
+      document.body.classList.toggle("nav-open", open);
+      navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+
+  document.querySelectorAll("[data-nav]").forEach(function (link) {
+    link.addEventListener("click", function () {
+      closeMobileNav();
+      var id = link.getAttribute("data-nav");
+      if (id === "menu") showTab(document.body.classList.contains("drinks") ? "drinks" : "food", false);
+    });
+  });
+
+  function paintHeader() {
+    if (!siteHeader) return;
+    siteHeader.classList.toggle("is-scrolled", window.scrollY > 24);
+  }
+  window.addEventListener("scroll", paintHeader, { passive: true });
+  paintHeader();
+
+  function bindReveals() {
+    var nodes = document.querySelectorAll(".reveal");
+    if (!nodes.length) return;
+    if (!("IntersectionObserver" in window)) {
+      nodes.forEach(function (node) { node.classList.add("is-in"); });
+      return;
+    }
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-in");
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.16, rootMargin: "0px 0px -8% 0px" });
+    nodes.forEach(function (node) { observer.observe(node); });
+  }
+  bindReveals();
+
+  function paintNavCurrent() {
+    if (!siteNav) return;
+    var sections = ["about", "menu", "gallery", "contact"];
+    var active = "top";
+    var y = window.scrollY + (siteHeader ? siteHeader.offsetHeight + 20 : 90);
+    sections.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el && el.offsetTop <= y) active = id;
+    });
+    siteNav.querySelectorAll("a[data-nav]").forEach(function (link) {
+      var on = link.getAttribute("data-nav") === active;
+      if (on) link.setAttribute("aria-current", "true");
+      else link.removeAttribute("aria-current");
+    });
+  }
+  window.addEventListener("scroll", paintNavCurrent, { passive: true });
+  paintNavCurrent();
 
   searchForm.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -641,8 +714,11 @@
 
   function applyInfo(info) {
     if (!info) return;
-    var addr = document.querySelector(".addr");
-    if (addr && info.maps) addr.href = info.maps;
+    if (info.maps) {
+      document.querySelectorAll("a.addr").forEach(function (addr) {
+        addr.href = info.maps;
+      });
+    }
     document.querySelectorAll(".addr .am, .home-address").forEach(function (am) {
       if (info.address) am.textContent = info.address;
     });
@@ -907,7 +983,7 @@
     renderFood();
     renderDrinks();
     paintHome();
-    showTab("home", false);
+    showTab("food", false);
     bindPhotos();
     paintYours();
     if (window.ShegerOrder) window.ShegerOrder.bindMenu();
