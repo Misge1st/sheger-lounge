@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#100808">
+<meta name="theme-color" content="#B84A27">
 <title>Elo Restaurant — Staff</title>
 <style>
   @font-face { font-family: "Constantia"; src: url("fonts/constantia.ttf") format("truetype"); font-weight: 400; }
@@ -19,17 +19,18 @@
   @font-face { font-family: "Cormorant"; src: url("fonts/cormorant-700.ttf") format("truetype"); font-weight: 700; font-style: normal; }
 
   :root {
-    --ink: #100808;
-    --gold: #d8b84a;
-    --gold-bright: #f3de8a;
-    --gold-deep: #a8883a;
-    --gold-line: rgba(216, 184, 74, 0.42);
-    --gold-line-strong: rgba(216, 184, 74, 0.75);
-    --cream: #fff4d6;
-    --red: #b00000;
-    --red-deep: #7a0000;
-    --mute: #e0c88a;
-    --text: #f3de8a;
+    --ink: #2C1E18;
+    --ivory: #FAF6F0;
+    --gold: #C8963E;
+    --gold-bright: #D4A85A;
+    --gold-deep: #A67A32;
+    --gold-line: rgba(200, 150, 62, 0.38);
+    --gold-line-strong: rgba(200, 150, 62, 0.58);
+    --cream: #FAF6F0;
+    --red: #B84A27;
+    --red-deep: #963c1f;
+    --mute: #C9B8A8;
+    --text: #FAF6F0;
     --radius: 4px;
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -40,9 +41,9 @@
     font-family: Constantia, Palatino, Cormorant, Georgia, "Times New Roman", serif;
     font-weight: 400;
     background:
-      radial-gradient(ellipse at 50% -10%, rgba(176, 0, 0, 0.2), transparent 42%),
-      radial-gradient(ellipse at 80% 60%, rgba(216, 184, 74, 0.06), transparent 40%),
-      #100808;
+      radial-gradient(ellipse at 50% -10%, rgba(184, 74, 39, 0.18), transparent 42%),
+      radial-gradient(ellipse at 80% 60%, rgba(200, 150, 62, 0.06), transparent 40%),
+      #1A1210;
     color: var(--text);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
@@ -162,15 +163,15 @@
     min-height: 46px;
     border: 0;
     border-radius: 999px;
-    background: linear-gradient(180deg, #e0c06a, var(--gold-deep));
-    color: #1a1206;
+    background: var(--red);
+    color: #fff;
     font-weight: 700;
     letter-spacing: 0.04em;
     padding: 8px 18px;
     cursor: pointer;
-    transition: transform 0.2s var(--ease), filter 0.2s;
+    transition: transform 0.2s var(--ease), filter 0.2s, background 0.2s;
   }
-  button:hover, .linkish:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  button:hover, .linkish:hover { background: var(--red-deep); transform: translateY(-1px); }
   button.ghost, a.ghost {
     background: transparent;
     color: var(--text);
@@ -208,8 +209,8 @@
     min-height: 42px;
   }
   .tabs button[aria-selected="true"] {
-    background: linear-gradient(180deg, #e0c06a, var(--gold-deep));
-    color: #1a1206;
+    background: var(--red);
+    color: #fff;
   }
   h2 {
     font-size: 13px;
@@ -290,7 +291,7 @@
     min-width: 46px;
     height: 46px;
     border-radius: 999px;
-    background: linear-gradient(160deg, #e01838, var(--red-deep));
+    background: var(--red);
     color: #fff;
     display: inline-flex;
     align-items: center;
@@ -336,8 +337,8 @@
     min-height: 50px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    border: 1px solid var(--gold);
-    background: linear-gradient(180deg, #e01838, var(--red-deep));
+    border: 0;
+    background: var(--red);
     color: #fff;
   }
 
