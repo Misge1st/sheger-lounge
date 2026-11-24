@@ -1,6 +1,20 @@
 (function () {
   var FOOD_CATS = ["Meats", "Dishes", "Fasting"];
   var DRINK_CATS = ["Spirits", "Soft drinks"];
+  var CAT_LABEL = {
+    "Meats": "Meat sold by the kilo",
+    "Dishes": "Other food",
+    "Fasting": "Fasting food",
+    "Spirits": "Alcohol",
+    "Soft drinks": "Soft drinks, beer, and water"
+  };
+  var HELP = {
+    orders: "New orders need you. Press “I will make this” when you start cooking. Press “Order is finished” after you deliver it.",
+    food: "Change a price, hide a dish, or add a new food. Customers do not see it until you press the big button at the bottom.",
+    drinks: "Change a drink price or hide a drink. Customers do not see it until you press the big button at the bottom.",
+    home: "These photos and videos show on the website home page. After you add or delete one, press the big button at the bottom.",
+    lounge: "This is the phone number, address, and delivery fee on the website. After you change them, press the big button at the bottom."
+  };
   var password = "";
   var draft = null;
   var savedJson = "";
@@ -47,7 +61,7 @@
     loginAlert.hidden = !count;
     loginCount.textContent = String(count || 0);
     loginAlertTitle.textContent = count === 1 ? "1 active order" : count + " active orders";
-    loginAlertText.textContent = count ? "Sign in to open them." : "";
+    loginAlertText.textContent = count ? "Open the page to see them." : "";
     if (count) {
       ordersBadge.hidden = false;
       ordersBadge.textContent = String(count);
@@ -155,7 +169,7 @@
     options.forEach(function (option) {
       var choice = document.createElement("option");
       choice.value = option;
-      choice.textContent = option;
+      choice.textContent = CAT_LABEL[option] || option;
       choice.selected = option === value;
       node.appendChild(choice);
     });
@@ -168,18 +182,18 @@
     var itemName = document.createElement("input");
     itemName.setAttribute("data-name", "");
     itemName.value = name || "";
-    itemName.placeholder = "Name";
+    itemName.placeholder = "Size, like 1 kg or Bottle";
     itemName.maxLength = 40;
     var itemPrice = document.createElement("input");
     itemPrice.setAttribute("data-price", "");
     itemPrice.value = price || "";
-    itemPrice.placeholder = "Price";
+    itemPrice.placeholder = "Price in birr";
     itemPrice.inputMode = "decimal";
     itemPrice.maxLength = 12;
     var remove = document.createElement("button");
     remove.type = "button";
     remove.className = "ghost";
-    remove.textContent = "Remove";
+    remove.textContent = "Delete this price";
     remove.addEventListener("click", function () { row.remove(); });
     row.appendChild(itemName);
     row.appendChild(itemPrice);
@@ -199,9 +213,9 @@
   }
 
   function linesLookWrong(lines) {
-    if (!lines.length) return "Add a price.";
+    if (!lines.length) return "Type at least one price.";
     for (var i = 0; i < lines.length; i += 1) {
-      if (!lines[i].name || !formatPrice(lines[i].price)) return "Each price needs a name and an amount.";
+      if (!lines[i].name || !formatPrice(lines[i].price)) return "Every line needs a size and a price.";
     }
     return "";
   }
@@ -362,7 +376,7 @@
       preview.alt = "";
       preview.src = src;
       slot.appendChild(preview);
-      var remove = button("Remove", "remove-photo", index, "food", "warn");
+      var remove = button("Delete photo", "remove-photo", index, "food", "warn");
       slot.appendChild(remove);
       slots.appendChild(slot);
     });
@@ -371,28 +385,28 @@
     hint.className = "muted";
     var count = foodImages(item).length;
     hint.textContent = count >= 3
-      ? "3 photos max. Remove one to add another."
-      : "Up to 3 photos. Customers can swipe through them. (" + count + "/3)";
+      ? "This food already has 3 photos. Delete one if you want a new photo."
+      : "You can add up to 3 photos. Customers swipe to see them. (" + count + " of 3)";
     bank.appendChild(hint);
     if (count < 3) {
       var photo = document.createElement("input");
       photo.type = "file";
       photo.name = "photo";
       photo.accept = "image/*";
-      bank.appendChild(field("Add photo", photo));
+      bank.appendChild(field("Add a photo of this food", photo));
     }
     form.appendChild(bank);
-    form.appendChild(field("Name", input("name", item.name, "Chicken pasta")));
-    form.appendChild(field("Amharic name", input("am", item.am, "")));
-    form.appendChild(field("Category", select("category", FOOD_CATS, item.category || "Dishes")));
-    form.appendChild(check("available", "Available for customers", item.available !== false));
-    form.appendChild(check("feature", "Highlight this dish", item.feature === true));
-    var multi = check("multi", "More than one price", !!item.sizes);
+    form.appendChild(field("Food name", input("name", item.name, "Example: Kitfo")));
+    form.appendChild(field("Amharic name", input("am", item.am, "Example: ክትፎ")));
+    form.appendChild(field("Where it belongs", select("category", FOOD_CATS, item.category || "Dishes")));
+    form.appendChild(check("available", "Customers can order this", item.available !== false));
+    form.appendChild(check("feature", "Put a gold box around this dish", item.feature === true));
+    var multi = check("multi", "This food has more than one size", !!item.sizes);
     form.appendChild(multi);
     var single = document.createElement("div");
     single.className = "single";
     single.hidden = !!item.sizes;
-    single.appendChild(field("Price", input("price", item.price, "350")));
+    single.appendChild(field("Price in birr", input("price", item.price, "350")));
     form.appendChild(single);
     var many = document.createElement("div");
     many.className = "many";
@@ -403,12 +417,12 @@
       lines.appendChild(lineRow(line.name, line.price));
     });
     many.appendChild(lines);
-    many.appendChild(button("Add price", "add-line"));
+    many.appendChild(button("Add another size", "add-line"));
     form.appendChild(many);
     var actions = document.createElement("div");
     actions.className = "row-actions";
-    actions.appendChild(button("Done", "done"));
-    actions.appendChild(button("Cancel", "cancel", null, null, "ghost"));
+    actions.appendChild(button("Save this food", "done"));
+    actions.appendChild(button("Go back", "cancel", null, null, "ghost"));
     form.appendChild(actions);
     form.addEventListener("submit", function (event) { event.preventDefault(); });
     return form;
@@ -417,19 +431,19 @@
   function drinkEditor(item) {
     var form = document.createElement("form");
     form.className = "editor";
-    form.appendChild(field("Name", input("name", item.name, "Black Label")));
-    form.appendChild(field("Category", select("category", DRINK_CATS, item.category || "Spirits")));
-    form.appendChild(check("available", "Available for customers", item.available !== false));
+    form.appendChild(field("Drink name", input("name", item.name, "Example: Black Label")));
+    form.appendChild(field("Where it belongs", select("category", DRINK_CATS, item.category || "Spirits")));
+    form.appendChild(check("available", "Customers can order this", item.available !== false));
     var lines = document.createElement("div");
     lines.className = "lines";
     var source = item.sizes || item.rows || [{ name: "Bottle", price: "" }];
     source.forEach(function (line) { lines.appendChild(lineRow(line.name, line.price)); });
     form.appendChild(lines);
-    form.appendChild(button("Add price", "add-line"));
+    form.appendChild(button("Add another size", "add-line"));
     var actions = document.createElement("div");
     actions.className = "row-actions";
-    actions.appendChild(button("Done", "done"));
-    actions.appendChild(button("Cancel", "cancel", null, null, "ghost"));
+    actions.appendChild(button("Save this drink", "done"));
+    actions.appendChild(button("Go back", "cancel", null, null, "ghost"));
     form.appendChild(actions);
     form.addEventListener("submit", function (event) { event.preventDefault(); });
     return form;
@@ -445,7 +459,7 @@
     if (item.available === false) {
       var off = document.createElement("div");
       off.className = "off";
-      off.textContent = "Unavailable";
+      off.textContent = "Hidden from customers";
       row.appendChild(off);
     }
     var prices = document.createElement("p");
@@ -453,11 +467,11 @@
     row.appendChild(prices);
     var actions = document.createElement("div");
     actions.className = "row-actions";
-    actions.appendChild(button("Edit", "edit", index, kind));
-    actions.appendChild(button(item.available === false ? "Mark available" : "Sold out", "soldout", index, kind, "ghost"));
-    actions.appendChild(button("Remove", "remove", index, kind, "warn"));
-    actions.appendChild(button("Up", "up", index, kind, "ghost"));
-    actions.appendChild(button("Down", "down", index, kind, "ghost"));
+    actions.appendChild(button("Change", "edit", index, kind));
+    actions.appendChild(button(item.available === false ? "Show it again" : "Hide it", "soldout", index, kind, "ghost"));
+    actions.appendChild(button("Delete", "remove", index, kind, "warn"));
+    actions.appendChild(button("Move up", "up", index, kind, "ghost"));
+    actions.appendChild(button("Move down", "down", index, kind, "ghost"));
     row.appendChild(actions);
     return row;
   }
@@ -467,7 +481,7 @@
     var list = kind === "food" ? draft.food : draft.drinks;
     cats.forEach(function (cat) {
       var heading = document.createElement("h2");
-      heading.textContent = cat;
+      heading.textContent = CAT_LABEL[cat] || cat;
       panel.appendChild(heading);
       list.forEach(function (item, index) {
         if (item.category !== cat) return;
@@ -478,7 +492,7 @@
         }
       });
     });
-    panel.appendChild(button(kind === "food" ? "Add food" : "Add drink", "add", null, kind));
+    panel.appendChild(button(kind === "food" ? "Add a new food" : "Add a new drink", "add", null, kind));
   }
 
   function renderLounge() {
@@ -486,21 +500,21 @@
     var phones = info.phones || [];
     var form = document.createElement("form");
     form.className = "lounge";
-    form.appendChild(field("Address", (function () {
+    form.appendChild(field("Address customers see", (function () {
       var box = document.createElement("textarea");
       box.name = "address";
       box.maxLength = 180;
       box.value = info.address || "";
       return box;
     })()));
-    form.appendChild(field("Google Maps link", input("maps", info.maps, "https://")));
-    form.appendChild(field("Delivery phone 1", input("phone1", phones[0], "")));
-    form.appendChild(field("Delivery phone 2", input("phone2", phones[1], "")));
-    form.appendChild(field("TikTok", input("tiktok", info.tiktok, "@")));
-    form.appendChild(field("Delivery fee (ETB)", input("deliveryFee", info.deliveryFee || "100", "100")));
+    form.appendChild(field("Google Maps link", input("maps", info.maps, "Paste the map link")));
+    form.appendChild(field("Phone number 1", input("phone1", phones[0], "0909499994")));
+    form.appendChild(field("Phone number 2", input("phone2", phones[1], "096 382 4782")));
+    form.appendChild(field("TikTok name", input("tiktok", info.tiktok, "@sheger_kurt")));
+    form.appendChild(field("Delivery fee in birr", input("deliveryFee", info.deliveryFee || "100", "100")));
     var note = document.createElement("p");
     note.className = "muted";
-    note.textContent = "Press Publish to show these details on the customer menu.";
+    note.textContent = "Type the new details, then press the big button at the bottom. Until then, the website stays the same.";
     form.appendChild(note);
     form.addEventListener("submit", function (event) { event.preventDefault(); });
     panel.appendChild(form);
@@ -508,14 +522,21 @@
 
   function refreshPublish() {
     publishBtn.disabled = false;
-    publishBtn.textContent = "Publish";
+    publishBtn.textContent = "Show changes to customers";
+  }
+
+  function orderWords(status) {
+    if (status === "accepted") return "You said you will make this";
+    if (status === "done") return "Finished";
+    if (status === "cancelled") return "Cancelled";
+    return "New — please look";
   }
 
   function renderOrders() {
     if (!orders.length) {
       var empty = document.createElement("p");
       empty.className = "muted";
-      empty.textContent = "No orders yet.";
+      empty.textContent = "No orders yet. When a customer orders, it will show here.";
       panel.appendChild(empty);
       return;
     }
@@ -523,7 +544,7 @@
       var card = document.createElement("article");
       card.className = "order-card" + (order.status === "new" ? " new" : "");
       var title = document.createElement("h3");
-      title.textContent = "Order #" + order.id + " · " + String(order.status || "new").toUpperCase();
+      title.textContent = "Order " + order.id + " — " + orderWords(order.status);
       card.appendChild(title);
       var meta = document.createElement("div");
       meta.className = "meta";
@@ -549,14 +570,14 @@
       money.className = "money";
       money.innerHTML =
         "<div>Food: " + formatMoney(order.foodTotal) + "</div>" +
-        "<div>Delivery: " + formatMoney(order.deliveryFee) + "</div>" +
-        "<div><strong>TOTAL: " + formatMoney(order.total) + "</strong></div>";
+        "<div>Delivery fee: " + formatMoney(order.deliveryFee) + "</div>" +
+        "<div><strong>Customer pays: " + formatMoney(order.total) + "</strong></div>";
       card.appendChild(money);
       var actions = document.createElement("div");
       actions.className = "row-actions";
-      if (order.status === "new") actions.appendChild(button("Accept", "order-status", order.id, "accepted"));
-      if (order.status === "new" || order.status === "accepted") actions.appendChild(button("Done", "order-status", order.id, "done"));
-      if (order.status !== "cancelled" && order.status !== "done") actions.appendChild(button("Cancel", "order-status", order.id, "cancelled", "warn"));
+      if (order.status === "new") actions.appendChild(button("I will make this", "order-status", order.id, "accepted"));
+      if (order.status === "new" || order.status === "accepted") actions.appendChild(button("Order is finished", "order-status", order.id, "done"));
+      if (order.status !== "cancelled" && order.status !== "done") actions.appendChild(button("Cancel this order", "order-status", order.id, "cancelled", "warn"));
       card.appendChild(actions);
       panel.appendChild(card);
     });
@@ -597,6 +618,8 @@
     else if (tab === "lounge") renderLounge();
     else if (tab === "home") renderHome();
     else renderList(tab);
+    var help = document.getElementById("help");
+    if (help) help.textContent = HELP[tab] || "";
     document.querySelectorAll(".tabs button").forEach(function (node) {
       node.setAttribute("aria-selected", node.dataset.tab === tab ? "true" : "false");
     });
@@ -613,7 +636,7 @@
     ensureHome();
     var note = document.createElement("p");
     note.className = "muted";
-    note.textContent = "Photos and videos here show on the customer Home tab. Videos should be short (about 4 MB or less). Press Publish after changes.";
+    note.textContent = "Add a photo or a short video. Keep videos small. Then press the big button at the bottom so customers can see them.";
     panel.appendChild(note);
 
     var actions = document.createElement("div");
@@ -626,8 +649,8 @@
     videoInput.type = "file";
     videoInput.accept = "video/mp4,video/webm,video/*";
     videoInput.hidden = true;
-    var addPhoto = button("Add photo", "home-pick-photo");
-    var addVideo = button("Add video", "home-pick-video");
+    var addPhoto = button("Add a photo", "home-pick-photo");
+    var addVideo = button("Add a video", "home-pick-video");
     actions.appendChild(addPhoto);
     actions.appendChild(addVideo);
     panel.appendChild(actions);
@@ -647,7 +670,7 @@
     if (!draft.home.media.length) {
       var empty = document.createElement("p");
       empty.className = "muted";
-      empty.textContent = "No home photos or videos yet.";
+      empty.textContent = "No photos or videos yet. Press “Add a photo” or “Add a video”.";
       panel.appendChild(empty);
       return;
     }
@@ -681,7 +704,7 @@
         refreshPublish();
       });
       row.appendChild(cap);
-      row.appendChild(button("Remove", "home-remove", index, "home", "warn"));
+      row.appendChild(button("Delete this", "home-remove", index, "home", "warn"));
       panel.appendChild(row);
     });
   }
@@ -714,7 +737,7 @@
           src: data.src,
           caption: ""
         });
-        showStatus("Saved on this page. Press Publish for customers.");
+        showStatus("Saved here. Press “Show changes to customers” at the bottom.");
         render();
         return publishDraft();
       });
@@ -770,28 +793,26 @@
 
   function publishDraft() {
     publishBtn.disabled = true;
-    showStatus("Publishing…");
+    showStatus("Sending the new menu to customers…");
     return fetch("/api/menu", {
       method: "PUT",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + password },
       body: JSON.stringify(draft)
     }).then(function (res) {
       return res.json().catch(function () { return {}; }).then(function (data) {
-        if (!res.ok) throw new Error((data && data.error) || "The menu was not published.");
+        if (!res.ok) throw new Error((data && data.error) || "The menu did not update.");
         savedJson = snapshot(draft);
         if (data.github && data.github.ok) {
-          showStatus("Published. Customers can see this menu. Also saved on GitHub.");
+          showStatus("Done. Customers can see the new menu now.");
         } else if (data.github && data.github.error) {
-          showStatus("Published for customers. GitHub sync failed: " + data.github.error);
-        } else if (data.github && data.github.skipped) {
-          showStatus("Published. Customers can see this menu. (Add GITHUB_TOKEN on Netlify to sync GitHub.)");
+          showStatus("Customers can see it. The extra save failed: " + data.github.error);
         } else {
-          showStatus("Published. Customers can see this menu.");
+          showStatus("Done. Customers can see the new menu now.");
         }
         refreshPublish();
       });
     }).catch(function (error) {
-      showStatus(error.message || "The menu was not published.");
+      showStatus(error.message || "The menu did not update. Try the button again.");
       refreshPublish();
     });
   }
@@ -802,7 +823,7 @@
     stashFoodEditor(item, form);
     syncFoodImages(item);
     if (foodImages(item).length >= 3) {
-      showStatus("This dish already has 3 photos. Remove one first.");
+      showStatus("This food already has 3 photos. Delete one first.");
       return;
     }
     var localUrl = URL.createObjectURL(file);
@@ -822,7 +843,7 @@
         item.image = item.images[0] || "";
         if (item.share) delete item.share;
         URL.revokeObjectURL(localUrl);
-        showStatus("Photo added. Press Publish for customers.");
+        showStatus("Photo added. Press “Show changes to customers” at the bottom.");
         render();
         return publishDraft();
       });
@@ -848,7 +869,7 @@
     if (action === "home-remove") {
       ensureHome();
       draft.home.media.splice(index, 1);
-      showStatus("Removed on this page. Press Publish for customers.");
+      showStatus("Deleted here. Press “Show changes to customers” at the bottom.");
       render();
       return;
     }
@@ -862,7 +883,7 @@
       photos.splice(index, 1);
       dish.images = photos;
       dish.image = photos[0] || "";
-      showStatus("Photo removed on this page. Press Publish for customers.");
+      showStatus("Photo deleted here. Press “Show changes to customers” at the bottom.");
       render();
       return;
     }
@@ -874,7 +895,7 @@
     }
     if (action === "done") {
       if (!commitOpen()) return;
-      showStatus("Saved on this page. Press Publish for customers.");
+      showStatus("Saved here. Press “Show changes to customers” at the bottom.");
       render();
       return;
     }
@@ -909,16 +930,16 @@
     }
     if (action === "soldout") {
       item.available = item.available === false;
-      showStatus("Saved on this page. Press Publish for customers.");
+      showStatus("Saved here. Press “Show changes to customers” at the bottom.");
       render();
       return;
     }
     if (action === "remove") {
       var label = item.name || "this item";
-      if (!window.confirm("Remove " + label + "?")) return;
+      if (!window.confirm("Delete " + label + "? Customers will not see it after you press the bottom button.")) return;
       list.splice(index, 1);
       editing = null;
-      showStatus("Removed on this page. Press Publish for customers.");
+      showStatus("Deleted here. Press “Show changes to customers” at the bottom.");
       render();
       return;
     }
@@ -1002,7 +1023,7 @@
       savedJson = snapshot(draft);
       editing = null;
       render();
-      showStatus("Customers see the menu after you press Publish.");
+      showStatus("Customers still see the old menu until you press the button at the bottom.");
     });
   }
 
@@ -1028,7 +1049,7 @@
       });
     }).catch(function (error) {
       var message = error && error.name === "TypeError"
-        ? "Open this page from the lounge website, not as a saved file."
+        ? "Open this from the website link, not from a saved file."
         : (error.message || "Could not sign in.");
       throw new Error(message);
     });

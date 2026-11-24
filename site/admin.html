@@ -21,29 +21,26 @@
   :root {
     --ink: #2C1E18;
     --ivory: #FAF6F0;
-    --gold: #C8963E;
-    --gold-bright: #D4A85A;
-    --gold-deep: #A67A32;
-    --gold-line: rgba(200, 150, 62, 0.38);
-    --gold-line-strong: rgba(200, 150, 62, 0.58);
-    --cream: #FAF6F0;
+    --gold: #8A5A12;
+    --gold-bright: #8A5A12;
+    --gold-deep: #8A5A12;
+    --gold-line: rgba(44, 30, 24, 0.16);
+    --gold-line-strong: rgba(44, 30, 24, 0.28);
+    --cream: #2C1E18;
     --red: #B84A27;
     --red-deep: #963c1f;
-    --mute: #C9B8A8;
-    --text: #FAF6F0;
-    --radius: 4px;
+    --mute: #5c463c;
+    --text: #2C1E18;
+    --radius: 12px;
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: Constantia, Palatino, Cormorant, Georgia, "Times New Roman", serif;
-    font-weight: 400;
-    background:
-      radial-gradient(ellipse at 50% -10%, rgba(184, 74, 39, 0.18), transparent 42%),
-      radial-gradient(ellipse at 80% 60%, rgba(200, 150, 62, 0.06), transparent 40%),
-      #1A1210;
+    font-family: system-ui, "Segoe UI", sans-serif;
+    font-weight: 500;
+    background: #F3EBE1;
     color: var(--text);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
@@ -66,7 +63,7 @@
   #login, #app {
     position: relative;
     z-index: 1;
-    max-width: 720px;
+    max-width: 880px;
     margin: 0 auto;
     padding: 32px 16px 130px;
     animation: rise 0.7s var(--ease) both;
@@ -108,27 +105,37 @@
   }
 
   h1 {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 32px;
+    font-weight: 800;
     margin: 0 0 6px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--cream);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink);
   }
   .lede {
     color: var(--mute);
     margin: 0 0 22px;
-    line-height: 1.5;
-    font-size: 17px;
-    font-style: italic;
+    line-height: 1.45;
+    font-size: 18px;
+    font-style: normal;
+  }
+  .help {
+    margin: 0 0 18px;
+    padding: 14px 16px;
+    background: #fff;
+    border: 1px solid var(--gold-line);
+    border-left: 6px solid var(--red);
+    border-radius: 10px;
+    font-size: 18px;
+    line-height: 1.45;
   }
 
   form.card, .card {
-    border: 1px solid var(--gold-line-strong);
+    border: 1px solid var(--gold-line);
     border-radius: var(--radius);
     padding: 20px;
-    background: linear-gradient(160deg, rgba(22, 18, 12, 0.85), rgba(8, 8, 8, 0.7));
-    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(44, 30, 24, 0.06);
   }
   label.field { display: block; margin: 14px 0; }
   label.field span, .check span {
@@ -144,7 +151,7 @@
     min-height: 46px;
     border: 1px solid var(--gold-line-strong);
     border-radius: var(--radius);
-    background: rgba(16, 16, 16, 0.95);
+    background: #fff;
     padding: 10px 14px;
     font-size: 17px;
     outline: none;
@@ -196,35 +203,45 @@
   }
   .top { justify-content: space-between; margin-bottom: 18px; align-items: flex-start; }
   .tabs {
-    margin: 8px 0 20px;
-    padding: 4px;
-    border: 1px solid rgba(212, 175, 55, 0.28);
-    border-radius: 999px;
-    background: rgba(0, 0, 0, 0.35);
+    margin: 8px 0 14px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
   .tabs button {
-    background: transparent;
-    color: var(--mute);
-    border: 0;
-    min-height: 42px;
+    background: #fff;
+    color: var(--ink);
+    border: 2px solid rgba(44, 30, 24, 0.16);
+    border-radius: 12px;
+    min-height: 56px;
+    font-size: 17px;
+    font-weight: 750;
   }
   .tabs button[aria-selected="true"] {
     background: var(--red);
     color: #fff;
+    border-color: var(--red);
   }
   h2 {
-    font-size: 13px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    font-size: 20px;
+    letter-spacing: 0;
+    text-transform: none;
     margin: 26px 0 10px;
-    color: var(--gold);
-    font-weight: 700;
+    color: var(--ink);
+    font-weight: 800;
   }
   .row, form.editor {
-    border-bottom: 1px solid rgba(230, 201, 122, 0.14);
-    padding: 16px 0;
+    border: 1px solid var(--gold-line);
+    border-radius: 12px;
+    background: #fff;
+    padding: 16px;
+    margin: 10px 0;
   }
-  .row strong { display: block; font-size: 19px; color: var(--cream); }
+  .row strong { display: block; font-size: 22px; color: var(--ink); }
   .row p, .muted { color: var(--mute); margin: 4px 0 8px; line-height: 1.45; }
   .off { color: #ffb4a8; font-size: 14px; }
   .line input { flex: 1; min-width: 0; }
@@ -265,13 +282,13 @@
     bottom: 0;
     z-index: 10;
     padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
-    background: rgba(8, 8, 8, 0.96);
-    backdrop-filter: blur(12px);
-    border-top: 1px solid var(--gold-line);
+    background: #fff;
+    border-top: 3px solid var(--red);
     justify-content: space-between;
-    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 -8px 24px rgba(44, 30, 24, 0.12);
   }
-  .publish p { margin: 0; flex: 1; color: var(--mute); font-size: 15px; }
+  .publish p { margin: 0; flex: 1; color: var(--ink); font-size: 17px; font-weight: 650; }
+  #publish { min-height: 56px; font-size: 18px; padding: 10px 18px; }
   button:disabled { opacity: 0.55; transform: none; }
 
   .login-alert {
@@ -282,7 +299,7 @@
     padding: 16px 18px;
     border: 1px solid var(--gold);
     border-radius: var(--radius);
-    background: linear-gradient(135deg, rgba(200, 16, 46, 0.22), rgba(0, 0, 0, 0.35));
+    background: #fff4ec;
     color: var(--text);
     box-shadow: 0 12px 32px rgba(200, 16, 46, 0.15);
   }
@@ -304,14 +321,14 @@
     border-radius: var(--radius);
     padding: 16px;
     margin: 14px 0;
-    background: linear-gradient(160deg, rgba(18, 14, 10, 0.8), rgba(8, 8, 8, 0.55));
+    background: #fff;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
   .order-card.new {
     border-color: var(--gold);
     box-shadow: inset 0 0 0 1px rgba(242, 193, 75, 0.2), 0 10px 28px rgba(0, 0, 0, 0.28);
   }
-  .order-card h3 { margin: 0 0 8px; font-size: 20px; color: var(--cream); letter-spacing: 0.02em; }
+  .order-card h3 { margin: 0 0 8px; font-size: 22px; color: var(--ink); letter-spacing: 0; }
   .order-card .meta { color: var(--mute); margin: 0 0 12px; line-height: 1.5; }
   .order-card ul { margin: 0 0 14px; padding-left: 18px; }
   .order-card .money { display: grid; gap: 4px; margin-bottom: 14px; color: var(--gold-bright); }
@@ -357,8 +374,8 @@
     <img class="brand-logo" src="elo-logo-clean.png" alt="Elo Restaurant">
     <div class="bar"><i></i><span></span></div>
   </div>
-  <h1>Staff</h1>
-  <p class="lede">Manage the menu, prices, and orders for Elo Restaurant.</p>
+  <h1>Staff page</h1>
+  <p class="lede">Type the password, then press Open. This is only for Elo staff.</p>
   <div class="login-alert" id="login-alert" hidden>
     <b id="login-count">0</b>
     <div>
@@ -368,11 +385,11 @@
   </div>
   <form class="card" id="login-form">
     <label class="field">
-      <span>Password</span>
-      <input id="password" type="password" autocomplete="current-password" required>
+      <span>Staff password</span>
+      <input id="password" type="password" autocomplete="current-password" required placeholder="Type the password">
     </label>
     <p class="error" id="login-error"></p>
-    <button type="submit">Enter</button>
+    <button type="submit">Open</button>
   </form>
 </section>
 
@@ -382,25 +399,26 @@
     <div class="bar"><i></i><span></span></div>
   </div>
   <div class="top">
-    <h1>Staff</h1>
+    <h1>What do you want to do?</h1>
     <div class="row-actions">
-      <a class="ghost" href="index.html">View menu</a>
-      <button class="ghost" type="button" id="logout">Log out</button>
+      <a class="ghost" href="index.html">See the website</a>
+      <button class="ghost" type="button" id="logout">Leave</button>
     </div>
   </div>
   <div class="tabs" role="tablist">
     <button type="button" data-tab="orders" aria-selected="false" class="badge-tab">Orders <i id="orders-badge" hidden>0</i></button>
-    <button type="button" data-tab="home" aria-selected="false">Home</button>
-    <button type="button" data-tab="food" aria-selected="true">Food</button>
-    <button type="button" data-tab="drinks" aria-selected="false">Drinks</button>
-    <button type="button" data-tab="lounge" aria-selected="false">Lounge</button>
+    <button type="button" data-tab="food" aria-selected="true">Food prices</button>
+    <button type="button" data-tab="drinks" aria-selected="false">Drink prices</button>
+    <button type="button" data-tab="home" aria-selected="false">Photos</button>
+    <button type="button" data-tab="lounge" aria-selected="false">Phone and address</button>
   </div>
+  <p class="help" id="help"></p>
   <div id="panel"></div>
 </section>
 
 <div class="publish" id="publish-bar" hidden>
-  <p id="status">Customers see the menu after you press Publish.</p>
-  <button type="button" id="publish">Publish</button>
+  <p id="status">Customers still see the old menu until you press the button.</p>
+  <button type="button" id="publish">Show changes to customers</button>
 </div>
 
 <script src="js/menu.js"></script>
