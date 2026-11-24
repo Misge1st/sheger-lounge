@@ -550,14 +550,15 @@
       meta.className = "meta";
       var customer = order.customer || {};
       var map = order.map || {};
+      var place = [customer.city, customer.area, customer.address].filter(Boolean).join(" · ");
       meta.innerHTML =
-        "<div><strong>" + esc(customer.name) + "</strong></div>" +
-        "<div>📞 <a href='tel:" + esc(String(customer.phone || "").replace(/[^\d+]/g, "")) + "'>" + esc(customer.phone) + "</a></div>" +
-        "<div>" + esc(customer.city) + (customer.area ? " · " + esc(customer.area) : "") + "</div>" +
-        "<div>" + esc(customer.address) + "</div>" +
-        (map.url ? "<div><a href='" + esc(map.url) + "' target='_blank' rel='noopener'>Open map location</a></div>" : "") +
-        (customer.note ? "<div>Note: " + esc(customer.note) + "</div>" : "") +
-        "<div>Payment: " + esc(paymentLabel(order.payment)) + "</div>";
+        "<div class='field-line'><b>Name</b><span>" + esc(customer.name || "—") + "</span></div>" +
+        "<div class='field-line'><b>Phone number</b><span><a href='tel:" + esc(String(customer.phone || "").replace(/[^\d+]/g, "")) + "'>" + esc(customer.phone || "—") + "</a></span></div>" +
+        "<div class='field-line'><b>Location</b><span>" + esc(place || "—") +
+          (map.url ? " · <a href='" + esc(map.url) + "' target='_blank' rel='noopener'>Open map</a>" : "") +
+        "</span></div>" +
+        (customer.note ? "<div class='field-line'><b>Note</b><span>" + esc(customer.note) + "</span></div>" : "") +
+        "<div class='field-line'><b>Payment</b><span>" + esc(paymentLabel(order.payment)) + "</span></div>";
       card.appendChild(meta);
       var list = document.createElement("ul");
       (order.items || []).forEach(function (item) {

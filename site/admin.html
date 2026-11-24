@@ -329,7 +329,18 @@
     box-shadow: inset 0 0 0 1px rgba(242, 193, 75, 0.2), 0 10px 28px rgba(0, 0, 0, 0.28);
   }
   .order-card h3 { margin: 0 0 8px; font-size: 22px; color: var(--ink); letter-spacing: 0; }
-  .order-card .meta { color: var(--mute); margin: 0 0 12px; line-height: 1.5; }
+  .order-card .meta { color: var(--ink); margin: 0 0 12px; line-height: 1.35; display: grid; gap: 10px; }
+  .order-card .field-line b {
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--mute);
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .order-card .field-line span,
+  .order-card .field-line a { font-size: 18px; color: var(--ink); }
   .order-card ul { margin: 0 0 14px; padding-left: 18px; }
   .order-card .money { display: grid; gap: 4px; margin-bottom: 14px; color: var(--gold-bright); }
   .badge-tab { display: inline-flex; align-items: center; gap: 8px; }
