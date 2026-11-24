@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sheger-lounge.netlify.app/sitemap.xml
