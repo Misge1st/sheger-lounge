@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#B84A27">
+<meta name="robots" content="noindex">
+<title>Order Online — Elo Restaurant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+</head>
+<body class="order-page">
+<header class="site-header" id="site-header">
+  <a class="brand-link" href="index.html">
+    <img src="elo-logo-clean.png" alt="">
+    <span>Elo</span>
+  </a>
+  <a class="order-back" href="index.html">Back to website</a>
+</header>
+<section class="band" id="order">
+  <div class="band-inner">
+    <div class="menu-shell">
+      <div class="menu-head reveal">
+        <p class="band-kicker">Delivery</p>
+        <h2 class="band-title">Order Online</h2>
+        <p class="band-lede">Choose a dish and tap Add. Your order is sent when you finish checkout.</p>
+      </div>
+
+      <div class="dock">
+        <nav class="tabs" role="tablist" aria-label="Menu type">
+          <button type="button" role="tab" id="tab-food" aria-controls="food" aria-selected="true">Food</button>
+          <button type="button" role="tab" id="tab-drinks" aria-controls="drinks" aria-selected="false">Drinks</button>
+        </nav>
+        <form class="search" id="menu-search" role="search">
+          <label class="sr" for="q">Search the menu</label>
+          <input id="q" type="search" placeholder="Search food or drinks" autocomplete="off" enterkeyhint="search">
+          <button class="clear" type="button" id="clear-search" hidden>Clear</button>
+          <button type="submit">Search</button>
+        </form>
+        <nav class="cats" id="cats" aria-label="Menu categories"></nav>
+      </div>
+
+      <p class="search-status" id="search-status" hidden></p>
+      <div class="menu-panels">
+        <section id="food" role="tabpanel" aria-labelledby="tab-food"></section>
+        <section id="drinks" role="tabpanel" aria-labelledby="tab-drinks" hidden></section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<button class="cart-fab" id="cart-fab" type="button" hidden>Order <b id="cart-count">0</b></button>
+<p class="cart-toast" id="cart-toast" hidden></p>
+
+<div class="checkout" id="checkout" hidden>
+  <div class="checkout-card">
+    <div class="checkout-top">
+      <h2 style="margin:0;border:0;padding:0;">Your order</h2>
+      <button type="button" id="checkout-close" aria-label="Close">×</button>
+    </div>
+    <div id="order-lines"></div>
+    <div id="order-totals"></div>
+
+    <h2>Delivery information</h2>
+    <form id="delivery-form">
+      <label><span>Full name</span><input name="name" required autocomplete="name"></label>
+      <label><span>Phone number</span><input name="phone" required inputmode="tel" autocomplete="tel"></label>
+      <label><span>City</span><input name="city" required value="Addis Ababa"></label>
+      <label><span>Area / Sub-city</span><input name="area" required></label>
+      <label><span>Delivery address</span><textarea name="address" required placeholder="Building, street, or landmark"></textarea></label>
+      <div class="loc-box">
+        <p id="map-label">Allow your current location so the driver can find you.</p>
+        <button type="button" id="use-location">Share my current location</button>
+        <a id="map-link" href="#" target="_blank" rel="noopener" hidden>Open my location</a>
+      </div>
+      <label><span>Delivery instructions (optional)</span><textarea name="note" maxlength="300"></textarea></label>
+
+      <h2>Payment method</h2>
+      <div class="pay">
+        <label><input type="radio" name="payment" value="cash" checked> Cash on Delivery</label>
+        <label><input type="radio" name="payment" value="mobile"> Mobile Payment</label>
+        <label><input type="radio" name="payment" value="other"> Other</label>
+      </div>
+      <p id="order-status"></p>
+      <button type="submit" id="place-order">Place order</button>
+    </form>
+    <button type="button" id="checkout-back" style="margin-top:12px;">Back to menu</button>
+  </div>
+</div>
+
+<div class="viewer" id="viewer" hidden>
+  <div class="viewer-card">
+    <button class="viewer-x" type="button" aria-label="Close">×</button>
+    <div class="viewer-info" id="viewer-info"></div>
+    <div class="viewer-media" id="viewer-media"></div>
+    <div id="viewer-rate"></div>
+    <button class="viewer-back" type="button">Back to menu</button>
+  </div>
+</div>
+
+<div class="thanks-overlay" id="thanks-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="thanks-title" aria-describedby="thanks-detail">
+  <div class="thanks-dialog">
+    <div class="mark" aria-hidden="true"><img src="elo-logo-clean.png" alt=""></div>
+    <h2 id="thanks-title">Thank you so much</h2>
+    <p id="thanks-detail"></p>
+    <button type="button" class="ok" id="thanks-ok">OK</button>
+  </div>
+</div>
+
+
+<script src="js/menu.js"></script>
+<script src="js/order.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

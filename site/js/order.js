@@ -341,17 +341,24 @@
     closeCheckout();
   }
 
-  document.getElementById("cart-fab").addEventListener("click", openCheckout);
-  document.getElementById("checkout-close").addEventListener("click", closeCheckout);
-  document.getElementById("checkout-back").addEventListener("click", closeCheckout);
-  document.getElementById("thanks-ok").addEventListener("click", hideThanks);
-  document.getElementById("thanks-overlay").addEventListener("click", function (event) {
+  var cartFab = document.getElementById("cart-fab");
+  if (cartFab) cartFab.addEventListener("click", openCheckout);
+  var checkoutClose = document.getElementById("checkout-close");
+  if (checkoutClose) checkoutClose.addEventListener("click", closeCheckout);
+  var checkoutBack = document.getElementById("checkout-back");
+  if (checkoutBack) checkoutBack.addEventListener("click", closeCheckout);
+  var thanksOk = document.getElementById("thanks-ok");
+  if (thanksOk) thanksOk.addEventListener("click", hideThanks);
+  var thanksOverlay = document.getElementById("thanks-overlay");
+  if (thanksOverlay) thanksOverlay.addEventListener("click", function (event) {
     if (event.target === event.currentTarget) hideThanks();
   });
-  document.getElementById("use-location").addEventListener("click", function () {
+  var useLocation = document.getElementById("use-location");
+  if (useLocation) useLocation.addEventListener("click", function () {
     askLocation(true);
   });
-  document.getElementById("order-lines").addEventListener("click", function (event) {
+  var orderLines = document.getElementById("order-lines");
+  if (orderLines) orderLines.addEventListener("click", function (event) {
     var button = event.target.closest("button");
     if (!button) return;
     var line = button.closest(".order-line");
@@ -362,7 +369,8 @@
     if (button.dataset.act === "minus") setQty(row.key, row.qty - 1);
     if (button.dataset.act === "remove") setQty(row.key, 0);
   });
-  document.getElementById("delivery-form").addEventListener("submit", placeOrder);
+  var deliveryForm = document.getElementById("delivery-form");
+  if (deliveryForm) deliveryForm.addEventListener("submit", placeOrder);
 
   window.ShegerOrder = { bindMenu: bindMenu, paintFab: paintFab };
   paintFab();

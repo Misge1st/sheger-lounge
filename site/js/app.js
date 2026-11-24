@@ -516,7 +516,7 @@
     document.body.classList.remove("home");
     document.body.classList.toggle("drinks", drinks);
     setCats(drinks ? "drinks" : "food");
-    if (norm(searchInput.value)) document.getElementById("cats").hidden = true;
+    if (searchInput && norm(searchInput.value)) document.getElementById("cats").hidden = true;
     if (scrollMenu) {
       var order = document.getElementById("order");
       if (order) order.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -614,6 +614,10 @@
 
   document.querySelectorAll("[data-go]").forEach(function (btn) {
     btn.addEventListener("click", function (event) {
+      if (!document.getElementById("food")) {
+        window.location.href = "order.html";
+        return;
+      }
       var target = btn.getAttribute("data-go") || "food";
       if (btn.tagName === "A") event.preventDefault();
       showTab(target, true);
@@ -679,6 +683,7 @@
   window.addEventListener("scroll", paintNavCurrent, { passive: true });
   paintNavCurrent();
 
+  if (searchForm && searchInput && clearSearch) {
   searchForm.addEventListener("submit", function (e) {
     e.preventDefault();
     applySearch(searchInput.value);
@@ -695,14 +700,19 @@
     applySearch("");
     searchInput.focus();
   });
+  }
 
-  document.querySelector(".viewer-x").addEventListener("click", closeViewer);
-  document.querySelector(".viewer-back").addEventListener("click", closeViewer);
+  var viewerClose = document.querySelector(".viewer-x");
+  var viewerBack = document.querySelector(".viewer-back");
+  if (viewer && viewerClose && viewerBack) {
+  viewerClose.addEventListener("click", closeViewer);
+  viewerBack.addEventListener("click", closeViewer);
   viewer.addEventListener("click", function (e) {
     if (e.target === viewer) closeViewer();
   });
+  }
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && !viewer.hidden) closeViewer();
+    if (e.key === "Escape" && viewer && !viewer.hidden) closeViewer();
   });
 
   function telHref(display) {
@@ -969,8 +979,10 @@
       applyHomeFilter();
     });
   });
-  document.getElementById("home-lightbox-x").addEventListener("click", closeHomeLightbox);
-  document.getElementById("home-lightbox").addEventListener("click", function (event) {
+  var homeLightboxX = document.getElementById("home-lightbox-x");
+  var homeLightbox = document.getElementById("home-lightbox");
+  if (homeLightboxX) homeLightboxX.addEventListener("click", closeHomeLightbox);
+  if (homeLightbox) homeLightbox.addEventListener("click", function (event) {
     if (event.target === event.currentTarget) closeHomeLightbox();
   });
   document.addEventListener("keydown", function (e) {
@@ -1044,11 +1056,13 @@
     MENU = window.SHEGER_MENU;
     applyInfo(MENU.info);
     renderBook();
-    renderFood();
-    renderDrinks();
-    paintHome();
-    showTab("food", false);
-    bindPhotos();
+    if (document.getElementById("food")) {
+      renderFood();
+      renderDrinks();
+      showTab("food", false);
+      bindPhotos();
+    }
+    if (document.getElementById("home-gallery")) paintHome();
     paintYours();
     if (window.ShegerOrder) window.ShegerOrder.bindMenu();
   }
