@@ -1,4 +1,32 @@
 (function () {
+  var THEME_KEY = "elo-theme";
+
+  function currentTheme() {
+    return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+  }
+
+  function paintTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", theme === "dark" ? "#161210" : "#B84A27");
+    document.querySelectorAll("[data-theme-toggle]").forEach(function (btn) {
+      var dark = theme === "dark";
+      btn.setAttribute("aria-pressed", dark ? "true" : "false");
+      btn.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+      var label = btn.querySelector(".theme-label");
+      if (label) label.textContent = dark ? "Light" : "Dark";
+    });
+  }
+
+  paintTheme(currentTheme());
+  document.querySelectorAll("[data-theme-toggle]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var next = currentTheme() === "dark" ? "light" : "dark";
+      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+      paintTheme(next);
+    });
+  });
+
   var MENU = window.SHEGER_MENU;
   var viewer = document.getElementById("viewer");
   var viewerInfo = document.getElementById("viewer-info");

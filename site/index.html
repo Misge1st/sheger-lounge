@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#B84A27">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem("elo-theme");
+    var theme = saved === "dark" || saved === "light" ? saved : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  } catch (e) {}
+})();
+</script>
 <meta name="description" content="Elo Restaurant — premium Ethiopian dining in Kazanchis, Addis Ababa. Browse the menu, order delivery, and visit us near Urael.">
 <title>Elo Restaurant — Kazanchis, Addis Ababa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,6 +44,10 @@
     <a href="#gallery" data-nav="gallery">Gallery</a>
     <a href="#contact" data-nav="contact">Contact</a>
   </nav>
+  <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Switch to dark mode">
+    <span class="theme-glyph" aria-hidden="true"></span>
+    <span class="theme-label">Dark</span>
+  </button>
   <a class="order-cta" href="order.html">Order Online</a>
 </header>
 
