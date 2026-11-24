@@ -179,32 +179,60 @@
   .order-cta:hover { background: var(--terracotta-deep); transform: translateY(-1px); }
   .theme-toggle {
     flex: 0 0 auto;
-    min-height: 40px;
-    padding: 0 12px;
+    width: 62px;
+    height: 32px;
+    padding: 3px;
     border: 1px solid var(--gold-line-strong);
-    background: transparent;
-    color: var(--on-dark);
-    font-family: var(--ui);
-    font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    border-radius: 999px;
+    background: rgba(18, 12, 10, 0.55);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4);
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
+    position: relative;
   }
-  .theme-toggle:hover { border-color: var(--gold); color: var(--gold-bright); }
-  .theme-glyph {
-    width: 13px;
-    height: 13px;
+  .theme-toggle:hover { border-color: var(--gold); }
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--gold-bright);
+    outline-offset: 3px;
+  }
+  .theme-track {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  .theme-sun,
+  .theme-moon {
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    margin-top: -6px;
     border-radius: 50%;
-    box-shadow: inset -5px -2px 0 0 currentColor;
+    pointer-events: none;
   }
-  html[data-theme="dark"] .theme-glyph {
-    box-shadow: 0 0 0 1.5px currentColor, 6px 0 0 -4px currentColor, -6px 0 0 -4px currentColor, 0 6px 0 -4px currentColor, 0 -6px 0 -4px currentColor;
-    background: currentColor;
+  .theme-sun {
+    left: 6px;
+    background: #F6E3A4;
+    box-shadow: 0 0 0 1px #F6E3A4, 7px 0 0 -5px #F6E3A4, -7px 0 0 -5px #F6E3A4, 0 7px 0 -5px #F6E3A4, 0 -7px 0 -5px #F6E3A4;
   }
+  .theme-moon {
+    right: 6px;
+    background: transparent;
+    box-shadow: inset -4px -1px 0 0 #E7D7C4;
+  }
+  .theme-knob {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #F6EFE6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    transition: transform 0.28s var(--ease);
+  }
+  html[data-theme="dark"] .theme-knob { transform: translateX(30px); }
+  html[data-theme="dark"] .theme-toggle { background: rgba(246, 239, 230, 0.16); }
 
   /* —— Hero —— */
   .hero {
@@ -1474,10 +1502,6 @@
     .about-visual { min-height: 260px; }
     .hero-actions { width: 100%; }
     .btn-primary, .btn-ghost { width: 100%; }
-  }
-  @media (max-width: 900px) {
-    .theme-glyph { display: none; }
-    .theme-toggle { padding: 0 8px; letter-spacing: 0.08em; font-size: 10px; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

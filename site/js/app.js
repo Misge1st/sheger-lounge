@@ -11,10 +11,8 @@
     if (meta) meta.setAttribute("content", theme === "dark" ? "#161210" : "#B84A27");
     document.querySelectorAll("[data-theme-toggle]").forEach(function (btn) {
       var dark = theme === "dark";
-      btn.setAttribute("aria-pressed", dark ? "true" : "false");
-      btn.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
-      var label = btn.querySelector(".theme-label");
-      if (label) label.textContent = dark ? "Light" : "Dark";
+      btn.setAttribute("aria-checked", dark ? "true" : "false");
+      btn.setAttribute("aria-label", dark ? "Dark mode on" : "Dark mode off");
     });
   }
 
