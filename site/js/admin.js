@@ -119,6 +119,17 @@
     return data && Array.isArray(data.food) && Array.isArray(data.drinks);
   }
 
+  function editorActions(extra, mainButtons) {
+    var bar = document.createElement("div");
+    bar.className = "editor-actions";
+    if (extra) bar.appendChild(extra);
+    var main = document.createElement("div");
+    main.className = "editor-actions-main";
+    mainButtons.forEach(function (node) { main.appendChild(node); });
+    bar.appendChild(main);
+    return bar;
+  }
+
   function button(text, action, index, kind, extra) {
     var node = document.createElement("button");
     node.type = "button";
@@ -417,13 +428,11 @@
       lines.appendChild(lineRow(line.name, line.price));
     });
     many.appendChild(lines);
-    many.appendChild(button("Add another size", "add-line"));
     form.appendChild(many);
-    var actions = document.createElement("div");
-    actions.className = "row-actions";
-    actions.appendChild(button("Save this food", "done"));
-    actions.appendChild(button("Go back", "cancel", null, null, "ghost"));
-    form.appendChild(actions);
+    form.appendChild(editorActions(button("Add another size", "add-line", null, null, "ghost"), [
+      button("Save this food", "done"),
+      button("Go back", "cancel", null, null, "ghost")
+    ]));
     form.addEventListener("submit", function (event) { event.preventDefault(); });
     return form;
   }
@@ -439,12 +448,10 @@
     var source = item.sizes || item.rows || [{ name: "Bottle", price: "" }];
     source.forEach(function (line) { lines.appendChild(lineRow(line.name, line.price)); });
     form.appendChild(lines);
-    form.appendChild(button("Add another size", "add-line"));
-    var actions = document.createElement("div");
-    actions.className = "row-actions";
-    actions.appendChild(button("Save this drink", "done"));
-    actions.appendChild(button("Go back", "cancel", null, null, "ghost"));
-    form.appendChild(actions);
+    form.appendChild(editorActions(button("Add another size", "add-line", null, null, "ghost"), [
+      button("Save this drink", "done"),
+      button("Go back", "cancel", null, null, "ghost")
+    ]));
     form.addEventListener("submit", function (event) { event.preventDefault(); });
     return form;
   }
