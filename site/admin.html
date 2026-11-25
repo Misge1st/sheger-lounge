@@ -403,6 +403,56 @@
     color: #fff;
   }
 
+  .welcome {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: #F3EBE1;
+  }
+  .welcome[hidden] { display: none; }
+  .welcome.show { animation: welcome-screen 2s linear forwards; }
+  .welcome-card {
+    text-align: center;
+  }
+  .welcome.show .welcome-card {
+    animation: welcome-card 0.55s var(--ease) both;
+  }
+  .welcome-card img {
+    width: 112px;
+    height: auto;
+    display: block;
+    margin: 0 auto 14px;
+  }
+  .welcome-card h2 {
+    margin: 0;
+    font-family: "Cormorant", Palatino, Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(40px, 7vw, 64px);
+    letter-spacing: 0;
+    color: var(--ink);
+  }
+  .welcome-card p {
+    margin: 8px 0 0;
+    font-size: 22px;
+    letter-spacing: 0;
+    color: var(--mute);
+    font-weight: 600;
+  }
+  @keyframes welcome-screen {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    78% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes welcome-card {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: none; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation: none !important;
@@ -413,6 +463,13 @@
 
 </head>
 <body>
+<div class="welcome" id="welcome" hidden role="status" aria-live="polite">
+  <div class="welcome-card">
+    <img src="elo-logo-clean.png" alt="">
+    <h2>Hello Medhanit</h2>
+    <p>Welcome back</p>
+  </div>
+</div>
 <section id="login">
   <div class="brand" aria-hidden="true">
     <img class="brand-logo" src="elo-logo-clean.png" alt="Elo Restaurant">
@@ -466,6 +523,6 @@
 </div>
 
 <script src="js/menu.js"></script>
-<script src="js/admin.js"></script>
+<script src="js/admin.js?v=20261125c"></script>
 </body>
 </html>

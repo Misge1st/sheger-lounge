@@ -539,6 +539,25 @@
     return "New — please look";
   }
 
+  function orderWhen(value) {
+    var date = value ? new Date(value) : null;
+    if (!date || isNaN(date.getTime())) return "—";
+    try {
+      return date.toLocaleString("en-US", {
+        timeZone: "Africa/Addis_Ababa",
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+    } catch (error) {
+      return date.toLocaleString();
+    }
+  }
+
   function renderOrders() {
     if (!orders.length) {
       var empty = document.createElement("p");
@@ -559,6 +578,7 @@
       var map = order.map || {};
       var place = [customer.city, customer.area, customer.address].filter(Boolean).join(" · ");
       meta.innerHTML =
+        "<div class='field-line'><b>Date and time</b><span>" + esc(orderWhen(order.createdAt)) + "</span></div>" +
         "<div class='field-line'><b>Name</b><span>" + esc(customer.name || "—") + "</span></div>" +
         "<div class='field-line'><b>Phone number</b><span><a href='tel:" + esc(String(customer.phone || "").replace(/[^\d+]/g, "")) + "'>" + esc(customer.phone || "—") + "</a></span></div>" +
         "<div class='field-line'><b>Location</b><span>" + esc(place || "—") +
@@ -1035,7 +1055,21 @@
     });
   }
 
-  function signIn(value) {
+  function greetMedhanit() {
+    var layer = document.getElementById("welcome");
+    if (!layer) return;
+    layer.hidden = false;
+    layer.classList.remove("show");
+    void layer.offsetWidth;
+    layer.classList.add("show");
+    window.clearTimeout(greetMedhanit.timer);
+    greetMedhanit.timer = window.setTimeout(function () {
+      layer.hidden = true;
+      layer.classList.remove("show");
+    }, 2000);
+  }
+
+  function signIn(value, sayHello) {
     return fetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1048,6 +1082,7 @@
         document.getElementById("login").hidden = true;
         document.getElementById("app").hidden = false;
         document.getElementById("publish-bar").hidden = false;
+        if (sayHello) greetMedhanit();
         return loadDraft().then(function () {
           return loadOrders().then(function () {
             if (pendingCount(orders)) tab = "orders";
@@ -1067,7 +1102,7 @@
     event.preventDefault();
     var box = document.getElementById("login-error");
     box.textContent = "";
-    signIn(document.getElementById("password").value).catch(function (error) {
+    signIn(document.getElementById("password").value, true).catch(function (error) {
       box.textContent = error.message;
     });
   });
