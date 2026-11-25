@@ -1318,7 +1318,16 @@
     border-color: var(--terracotta);
     background: rgba(184, 74, 39, 0.06);
   }
-  .pay input { width: 20px; min-height: 0; accent-color: var(--terracotta); }
+  #delivery-form .pay input {
+    width: 22px;
+    height: 22px;
+    min-height: 0;
+    flex: 0 0 22px;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    accent-color: var(--terracotta);
+  }
   .pay-note {
     margin: 0 0 14px;
     padding: 12px 14px;
@@ -1332,23 +1341,38 @@
   .pay-shot { margin: 0 0 14px; }
   .pay-shot[hidden] { display: none; }
   .pay-shot p { margin: 0 0 10px; font-size: 16px; line-height: 1.45; }
-  .shot-btn {
+  #delivery-form .shot-btn {
     position: relative;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 48px;
-    padding: 0 16px;
-    background: var(--terracotta);
-    color: #fff;
-    font-weight: 700;
+    width: 100%;
+    min-height: 52px;
+    margin: 0;
+    padding: 12px 16px;
+    border: 1.5px dashed var(--terracotta);
+    background: rgba(184, 74, 39, 0.06);
     cursor: pointer;
   }
-  .shot-btn input {
+  #delivery-form .shot-btn span {
+    display: block;
+    margin: 0;
+    color: var(--terracotta);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  #delivery-form .shot-btn input {
     position: absolute;
     width: 1px;
     height: 1px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
     opacity: 0;
+    overflow: hidden;
   }
   #pay-preview {
     display: block;
@@ -1664,6 +1688,11 @@
   }
   html[data-theme="dark"] .book-feature { background: rgba(184, 74, 39, 0.16); }
   html[data-theme="dark"] .pay label:has(input:checked) { background: rgba(184, 74, 39, 0.18); }
+  html[data-theme="dark"] #delivery-form .shot-btn {
+    background: rgba(184, 74, 39, 0.14);
+    border-color: #E7B7A4;
+  }
+  html[data-theme="dark"] #delivery-form .shot-btn span { color: #F6EFE6; }
   html[data-theme="dark"] .map-embed { background: #120e0c; }
   html[data-theme="dark"] .map-embed iframe {
     filter: invert(0.9) hue-rotate(180deg) saturate(0.45) brightness(0.82);
