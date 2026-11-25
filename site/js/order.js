@@ -296,7 +296,6 @@
         name: form.name.value.trim(),
         phone: form.phone.value.trim(),
         city: form.city.value.trim(),
-        area: form.area.value.trim(),
         address: form.address.value.trim(),
         note: form.note.value.trim()
       },

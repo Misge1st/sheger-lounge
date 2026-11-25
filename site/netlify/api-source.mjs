@@ -411,7 +411,6 @@ function cleanOrder(body, deliveryFee) {
   if (!name) throw new Error("Add your full name.");
   if (!phone || phone.replace(/\D/g, "").length < 9) throw new Error("Add a phone number.");
   if (!city) throw new Error("Add your city.");
-  if (!area) throw new Error("Add your area / sub-city.");
   if (!address) throw new Error("Add the delivery address.");
   const payment = ["cash", "mobile", "other"].indexOf(body.payment) >= 0 ? body.payment : "cash";
   const map = body.map || {};

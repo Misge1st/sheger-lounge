@@ -329,8 +329,6 @@ def clean_order(body, delivery_fee):
         raise ValueError("Add a phone number.")
     if not city:
         raise ValueError("Add your city.")
-    if not area:
-        raise ValueError("Add your area / sub-city.")
     if not address:
         raise ValueError("Add the delivery address.")
     payment = body.get("payment") if body.get("payment") in ("cash", "mobile", "other") else "cash"
