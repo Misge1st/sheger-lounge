@@ -48,3 +48,21 @@ var SHEGER_MENU = {
     { category: "Soft drinks", name: "Soft Drinks", rows: [{ name: "Soft drink", price: "80" }, { name: "Malt", price: "125" }, { name: "Normal beer", price: "135" }, { name: "Special beer", price: "155" }, { name: "1 Lt water", price: "80" }, { name: "1/2 Lt water", price: "60" }, { name: "Awash Tekeshimo", price: "1,100" }] }
   ]
 };
+
+function placeSpecialYetsom(menu) {
+  if (!menu || !Array.isArray(menu.food)) return menu;
+  var kept = [];
+  var moved = null;
+  menu.food.forEach(function (item) {
+    if (!item) return;
+    if (item.id === "special-yetsom" || item.name === "Special Yetsom Firfir") moved = item;
+    else kept.push(item);
+  });
+  if (moved) {
+    moved.category = "Fasting";
+    kept.push(moved);
+  }
+  menu.food = kept;
+  return menu;
+}
+placeSpecialYetsom(SHEGER_MENU);

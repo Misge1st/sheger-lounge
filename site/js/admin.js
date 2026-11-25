@@ -1024,8 +1024,8 @@
         return res.json();
       }).catch(function () { return null; });
     }).then(function (data) {
-      if (usable(data)) draft = data;
-      else draft = JSON.parse(JSON.stringify(window.SHEGER_MENU));
+      if (usable(data)) draft = placeSpecialYetsom(data);
+      else draft = placeSpecialYetsom(JSON.parse(JSON.stringify(window.SHEGER_MENU)));
       if (!draft.info) draft.info = JSON.parse(JSON.stringify(window.SHEGER_MENU.info || {}));
       ensureHome();
       savedJson = snapshot(draft);

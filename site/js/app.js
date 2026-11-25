@@ -1105,6 +1105,6 @@
       return res.json();
     }).catch(function () { return null; });
   }).then(function (data) {
-    if (usable(data)) window.SHEGER_MENU = data;
+    if (usable(data)) window.SHEGER_MENU = placeSpecialYetsom(data);
   }).finally(boot);
 })();
