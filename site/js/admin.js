@@ -49,11 +49,7 @@
   }
 
   function paymentLabel(value) {
-    if (value === "mobile") {
-      var phones = draft && draft.info && Array.isArray(draft.info.phones) ? draft.info.phones.filter(Boolean) : [];
-      if (!phones.length) phones = ["0909499994", "096 382 4782"];
-      return "Mobile Payment — " + phones.slice(0, 2).join(" or ");
-    }
+    if (value === "mobile") return "Telebirr — 0909 05 10 24";
     if (value === "other") return "Other";
     return "Cash on Delivery";
   }
@@ -638,9 +634,10 @@
     }
     showing.forEach(function (order) {
       var card = document.createElement("article");
-      card.className = "order-card" + (order.status === "new" ? " new" : "");
+      card.className = "order-card" + (order.status === "new" ? " new" : "") + (order.status === "cancelled" ? " cancelled" : "");
       var title = document.createElement("h3");
-      title.textContent = "Order " + order.id + " — " + orderWords(order.status);
+      title.innerHTML = "Order " + esc(order.id) + " — " +
+        (order.status === "cancelled" ? "<span class='cancelled'>Cancelled</span>" : esc(orderWords(order.status)));
       card.appendChild(title);
       var meta = document.createElement("div");
       meta.className = "meta";
@@ -657,6 +654,33 @@
         (customer.note ? "<div class='field-line'><b>Note</b><span>" + esc(customer.note) + "</span></div>" : "") +
         "<div class='field-line'><b>Payment</b><span>" + esc(paymentLabel(order.payment)) + "</span></div>";
       card.appendChild(meta);
+      if (order.receipt) {
+        var shot = document.createElement("div");
+        shot.className = "field-line";
+        shot.innerHTML = "<b>Telebirr screenshot</b>";
+        var img = document.createElement("img");
+        img.className = "receipt";
+        img.alt = "Telebirr screenshot";
+        shot.appendChild(img);
+        card.appendChild(shot);
+        fetch("/api/payment-shot?id=" + encodeURIComponent(order.id), {
+          cache: "no-store",
+          headers: { "Authorization": "Bearer " + password }
+        }).then(function (res) {
+          if (!res.ok) throw new Error("missing");
+          return res.blob();
+        }).then(function (blob) {
+          var url = URL.createObjectURL(blob);
+          img.src = url;
+          img.addEventListener("click", function () {
+            window.open(url, "_blank", "noopener");
+          });
+        }).catch(function () {
+          var miss = document.createElement("span");
+          miss.textContent = "The screenshot did not load.";
+          img.replaceWith(miss);
+        });
+      }
       var list = document.createElement("ul");
       (order.items || []).forEach(function (item) {
         var li = document.createElement("li");

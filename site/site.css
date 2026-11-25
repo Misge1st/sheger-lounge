@@ -1329,6 +1329,34 @@
   }
   .pay-note[hidden] { display: none; }
   .pay-note a { font-weight: 700; }
+  .pay-shot { margin: 0 0 14px; }
+  .pay-shot[hidden] { display: none; }
+  .pay-shot p { margin: 0 0 10px; font-size: 16px; line-height: 1.45; }
+  .shot-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 16px;
+    background: var(--terracotta);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .shot-btn input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+  #pay-preview {
+    display: block;
+    width: min(100%, 220px);
+    margin-top: 12px;
+    border: 1px solid rgba(44, 30, 24, 0.18);
+  }
+  #pay-preview[hidden] { display: none; }
   .loc-box {
     margin: 16px 0; padding: 16px;
     border: 1px solid var(--gold-line);

@@ -268,24 +268,46 @@
     });
   }
 
-  function payPhones() {
-    var info = (window.SHEGER_MENU && window.SHEGER_MENU.info) || {};
-    var phones = Array.isArray(info.phones) && info.phones.length ? info.phones : ["0909499994", "096 382 4782"];
-    return phones.filter(Boolean).slice(0, 2);
-  }
-
   function paintPayNote() {
     var note = document.getElementById("pay-number");
-    if (!note) return;
+    var shot = document.getElementById("pay-shot");
     var mobile = document.querySelector("input[name=payment][value=mobile]");
     var on = !!(mobile && mobile.checked);
-    note.hidden = !on;
-    if (!on) return;
-    note.innerHTML = "Send the payment to " + payPhones().map(function (phone) {
-      var tel = String(phone).replace(/[^\d+]/g, "");
-      if (tel.charAt(0) === "0") tel = "+251" + tel.slice(1);
-      return "<a href='tel:" + esc(tel) + "'>" + esc(phone) + "</a>";
-    }).join(" or ") + ".";
+    if (note) note.hidden = !on;
+    if (shot) shot.hidden = !on;
+  }
+
+  function compressShot(file) {
+    return new Promise(function (resolve, reject) {
+      var image = new Image();
+      var url = URL.createObjectURL(file);
+      image.onload = function () {
+        var scale = Math.min(1, 1200 / Math.max(image.width, image.height));
+        var canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+        canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(function (blob) {
+          if (!blob) reject(new Error("That picture could not be opened. Take a screenshot and try again."));
+          else resolve(blob);
+        }, "image/jpeg", 0.72);
+      };
+      image.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("That picture could not be opened. Take a screenshot and try again."));
+      };
+      image.src = url;
+    });
+  }
+
+  function blobToDataUrl(blob) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(reader.result); };
+      reader.onerror = function () { reject(new Error("The screenshot was not read.")); };
+      reader.readAsDataURL(blob);
+    });
   }
 
   function bindMenu() {
@@ -310,9 +332,15 @@
       return;
     }
     var form = document.getElementById("delivery-form");
+    var payment = (form.querySelector("input[name=payment]:checked") || {}).value || "cash";
+    var shot = document.getElementById("pay-file");
+    if (payment === "mobile" && (!shot || !shot.files || !shot.files[0])) {
+      status.textContent = "Attach the Telebirr screenshot.";
+      return;
+    }
     var payload = {
       items: rows,
-      payment: (form.querySelector("input[name=payment]:checked") || {}).value || "cash",
+      payment: payment,
       customer: {
         name: form.name.value.trim(),
         phone: form.phone.value.trim(),
@@ -323,11 +351,19 @@
       map: locationFix
     };
     button.disabled = true;
-    status.textContent = "Sending your order…";
-    fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+    var prepare = payment === "mobile"
+      ? compressShot(shot.files[0]).then(blobToDataUrl).then(function (dataUrl) {
+          payload.receipt = dataUrl;
+        })
+      : Promise.resolve();
+    status.textContent = payment === "mobile" ? "Preparing the screenshot…" : "Sending your order…";
+    prepare.then(function () {
+      status.textContent = "Sending your order…";
+      return fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
     }).then(function (res) {
       return res.json().catch(function () { return {}; }).then(function (data) {
         if (!res.ok) throw new Error((data && data.error) || "The order was not sent.");
@@ -338,6 +374,14 @@
         paintLocation();
         renderCheckout();
         status.textContent = "";
+        var preview = document.getElementById("pay-preview");
+        var label = document.getElementById("pay-file-label");
+        if (preview) {
+          preview.hidden = true;
+          preview.removeAttribute("src");
+        }
+        if (label) label.textContent = "Add the screenshot";
+        paintPayNote();
         showThanks(data.id);
       });
     }).catch(function (error) {
@@ -397,6 +441,26 @@
     });
     paintPayNote();
   }
+  var payFile = document.getElementById("pay-file");
+  if (payFile) payFile.addEventListener("change", function () {
+    var preview = document.getElementById("pay-preview");
+    var label = document.getElementById("pay-file-label");
+    var file = payFile.files && payFile.files[0];
+    if (!preview) return;
+    if (preview.dataset.url) URL.revokeObjectURL(preview.dataset.url);
+    if (!file) {
+      preview.hidden = true;
+      preview.removeAttribute("src");
+      delete preview.dataset.url;
+      if (label) label.textContent = "Add the screenshot";
+      return;
+    }
+    var url = URL.createObjectURL(file);
+    preview.dataset.url = url;
+    preview.src = url;
+    preview.hidden = false;
+    if (label) label.textContent = "Change the screenshot";
+  });
 
   window.ShegerOrder = { bindMenu: bindMenu, paintFab: paintFab };
   paintFab();

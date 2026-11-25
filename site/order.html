@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="site.css?v=20261125d">
+<link rel="stylesheet" href="site.css?v=20261125f">
 </head>
 <body class="order-page">
 <header class="site-header" id="site-header">
@@ -95,10 +95,18 @@
       <h2>Payment method</h2>
       <div class="pay">
         <label><input type="radio" name="payment" value="cash" checked> Cash on Delivery</label>
-        <label><input type="radio" name="payment" value="mobile"> Mobile Payment</label>
+        <label><input type="radio" name="payment" value="mobile"> Telebirr</label>
         <label><input type="radio" name="payment" value="other"> Other</label>
       </div>
-      <p class="pay-note" id="pay-number" hidden>Send the payment to 0909499994 or 096 382 4782.</p>
+      <p class="pay-note" id="pay-number" hidden>Pay with Telebirr to <a href="tel:+251909051024">0909 05 10 24</a>.</p>
+      <div class="pay-shot" id="pay-shot" hidden>
+        <p>After you pay, attach a screenshot of the Telebirr payment.</p>
+        <label class="shot-btn">
+          <span id="pay-file-label">Add the screenshot</span>
+          <input id="pay-file" name="receipt" type="file" accept="image/*">
+        </label>
+        <img id="pay-preview" alt="Telebirr screenshot" hidden>
+      </div>
       <p id="order-status"></p>
       <button type="submit" id="place-order">Place order</button>
     </form>
@@ -127,7 +135,7 @@
 
 
 <script src="js/menu.js?v=20261125d"></script>
-<script src="js/order.js?v=20261125d"></script>
+<script src="js/order.js?v=20261125f"></script>
 <script src="js/app.js?v=20261125d"></script>
 </body>
 </html>

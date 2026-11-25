@@ -1,4 +1,5 @@
 """Serve the menu and let staff save menu changes."""
+import base64
 import hmac
 import json
 import os
@@ -13,6 +14,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 RATINGS = os.path.join(ROOT, "ratings.json")
 MENU_FILE = os.path.join(ROOT, "data", "menu.json")
 ORDERS_FILE = os.path.join(ROOT, "data", "orders.json")
+RECEIPTS = os.path.join(ROOT, "data", "receipts")
 PHOTOS = os.path.join(ROOT, "photos")
 HOME_MEDIA = os.path.join(ROOT, "home-media")
 PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
@@ -414,6 +416,22 @@ def clean_order(body, delivery_fee):
     }
 
 
+def read_receipt(body, payment):
+    if payment != "mobile":
+        return None
+    text = str((body or {}).get("receipt") or "")
+    match = re.fullmatch(r"data:image/jpeg;base64,([A-Za-z0-9+/=\r\n]+)", text)
+    if not match:
+        raise ValueError("Attach the Telebirr screenshot.")
+    try:
+        raw = base64.b64decode(re.sub(r"\s", "", match.group(1)), validate=True)
+    except (ValueError, TypeError):
+        raise ValueError("Attach the Telebirr screenshot.")
+    if len(raw) < 100 or len(raw) > 900000 or raw[:2] != b"\xff\xd8":
+        raise ValueError("Attach a clear Telebirr screenshot.")
+    return raw
+
+
 def load_ratings():
     if not os.path.exists(RATINGS):
         return {}
@@ -475,6 +493,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/home-media":
             self.serve_home_media()
+            return
+        if path == "/api/payment-shot":
+            self.serve_receipt()
             return
         if path == "/api/orders/count":
             with LOCK:
@@ -566,8 +587,25 @@ class Handler(SimpleHTTPRequestHandler):
             save_json(ORDERS_FILE, data)
         self._json(200, {"ok": True, "order": order})
 
+    def serve_receipt(self):
+        if not self.authorized():
+            self._json(401, {"error": "That password is not right."})
+            return
+        query = parse_qs(urlparse(self.path).query)
+        receipt_id = (query.get("id") or [""])[0]
+        if not re.fullmatch(r"\d{1,8}", receipt_id):
+            self.send_error(404)
+            return
+        path = os.path.join(RECEIPTS, receipt_id + ".jpg")
+        if not os.path.isfile(path):
+            self.send_error(404)
+            return
+        with open(path, "rb") as handle:
+            raw = handle.read()
+        send_binary(self, raw, "image/jpeg")
+
     def place_order(self):
-        raw = self._read(50000)
+        raw = self._read(1600000)
         if raw is None:
             self._json(413, {"error": "too large"})
             return
@@ -586,6 +624,7 @@ class Handler(SimpleHTTPRequestHandler):
                 fee = DEFAULT_FEE
         try:
             payload = clean_order(body, fee)
+            receipt = read_receipt(body, payload["payment"])
         except ValueError as error:
             self._json(400, {"error": str(error)})
             return
@@ -597,6 +636,11 @@ class Handler(SimpleHTTPRequestHandler):
                 "createdAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             }
             order.update(payload)
+            if receipt:
+                os.makedirs(RECEIPTS, exist_ok=True)
+                with open(os.path.join(RECEIPTS, str(order["id"]) + ".jpg"), "wb") as handle:
+                    handle.write(receipt)
+                order["receipt"] = True
             data["nextId"] += 1
             data["orders"].insert(0, order)
             data["orders"] = data["orders"][:300]

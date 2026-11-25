@@ -1226,6 +1226,20 @@ function cleanOrder(body, deliveryFee) {
     payment
   };
 }
+function readReceipt(body, payment) {
+  if (payment !== "mobile") return null;
+  const text = String(body && body.receipt || "");
+  const match = text.match(/^data:image\/jpeg;base64,([A-Za-z0-9+/=\r\n]+)$/);
+  if (!match) throw new Error("Attach the Telebirr screenshot.");
+  const b64 = match[1].replace(/\s/g, "");
+  const bytes = typeof Buffer !== "undefined" ? new Uint8Array(Buffer.from(b64, "base64")) : Uint8Array.from(atob(b64), function(char) {
+    return char.charCodeAt(0);
+  });
+  if (bytes.length < 100 || bytes.length > 9e5 || bytes[0] !== 255 || bytes[1] !== 216) {
+    throw new Error("Attach a clear Telebirr screenshot.");
+  }
+  return bytes;
+}
 async function handler(req) {
   const url = new URL(req.url);
   const path = url.pathname;
@@ -1345,6 +1359,18 @@ async function handler(req) {
       github
     });
   }
+  if (path.endsWith("/payment-shot") && req.method === "GET") {
+    const gate = authorized(req);
+    if (gate === "missing") return json({ error: "Set ADMIN_PASSWORD in the Netlify site settings, then publish again." }, 503);
+    if (gate !== "ok") return json({ error: "That password is not right." }, 401);
+    const id = url.searchParams.get("id") || "";
+    if (!/^\d{1,8}$/.test(id)) return new Response(null, { status: 404 });
+    const bytes = await store.get("receipt:" + id, { type: "arrayBuffer" });
+    if (!bytes) return new Response(null, { status: 404 });
+    return new Response(bytes, {
+      headers: { "content-type": "image/jpeg", "cache-control": "private, no-store" }
+    });
+  }
   if (path.endsWith("/orders/count") && req.method === "GET") {
     const data = await loadOrders(store);
     const pending = data.orders.filter(function(order) {
@@ -1361,11 +1387,13 @@ async function handler(req) {
   }
   if (path.endsWith("/orders") && req.method === "POST") {
     let payload;
+    let receipt = null;
     try {
       const body = await req.json();
       const menu = await store.get("menu", { type: "json" });
       const fee = menu && menu.info ? menu.info.deliveryFee : "100";
       payload = cleanOrder(body, fee);
+      receipt = readReceipt(body, payload.payment);
     } catch (error) {
       return json({ error: error.message || "The order could not be placed." }, 400);
     }
@@ -1375,6 +1403,10 @@ async function handler(req) {
       status: "new",
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     }, payload);
+    if (receipt) {
+      order.receipt = true;
+      await store.set("receipt:" + order.id, receipt);
+    }
     data.nextId += 1;
     data.orders.unshift(order);
     if (data.orders.length > 300) data.orders.length = 300;
