@@ -55,7 +55,10 @@ function placeSpecialYetsom(menu) {
   var moved = null;
   menu.food.forEach(function (item) {
     if (!item) return;
-    if (item.id === "special-yetsom" || item.name === "Special Yetsom Firfir") moved = item;
+    var name = String(item.name || "").toLowerCase();
+    var id = String(item.id || "");
+    if (id === "spring-roll" || name === "spring roll") return;
+    if (id === "special-yetsom" || item.name === "Special Yetsom Firfir") moved = item;
     else kept.push(item);
   });
   if (moved) {

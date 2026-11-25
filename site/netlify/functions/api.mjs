@@ -928,7 +928,7 @@ function cleanMenu(body) {
   const fee = cleanPrice(infoIn.deliveryFee != null ? infoIn.deliveryFee : "100") || "100";
   return {
     info: { address, maps, phones, tiktok: tiktok || "@sheger_kurt", deliveryFee: fee },
-    food,
+    food: arrangeFood(food),
     drinks,
     home: cleanHome(body.home)
   };
@@ -1021,6 +1021,46 @@ function rewriteHomeMediaSrc(src, type) {
   const match = text.match(/^\/api\/home-media\?id=([a-z0-9-]+)$/i);
   if (!match) return text;
   return staticHomeSrc(match[1], type === "video" ? "video" : "photo");
+}
+function arrangeFood(food) {
+  const kept = [];
+  let moved = null;
+  (food || []).forEach(function(item) {
+    if (!item) return;
+    const name = String(item.name || "").toLowerCase();
+    const id = String(item.id || "");
+    if (id === "spring-roll" || name === "spring roll") return;
+    if (id === "special-yetsom" || item.name === "Special Yetsom Firfir") moved = item;
+    else kept.push(item);
+  });
+  if (moved) {
+    moved.category = "Fasting";
+    kept.push(moved);
+  }
+  return kept;
+}
+function publicHomeSrc(src, type) {
+  const text = String(src || "");
+  const api = text.match(/^\/api\/home-media\?id=([a-z0-9-]+)$/i);
+  const file = text.match(/^home-media\/([a-z0-9-]+)\.(jpg|jpeg|png|mp4|webm)$/i);
+  const id = api ? api[1] : file ? file[1] : "";
+  if (!id) return text;
+  if (type === "video") {
+    if (file && /^(mp4|webm)$/i.test(file[2])) return "home-media/" + id + "." + file[2].toLowerCase();
+    return "home-media/" + id + ".mp4";
+  }
+  return "/api/home-media?id=" + id;
+}
+function presentMenu(menu) {
+  const copy = JSON.parse(JSON.stringify(menu));
+  if (Array.isArray(copy.food)) copy.food = arrangeFood(copy.food);
+  if (copy.home && Array.isArray(copy.home.media)) {
+    copy.home.media = copy.home.media.map(function(row) {
+      if (!row) return row;
+      return Object.assign({}, row, { src: publicHomeSrc(row.src, row.type) });
+    });
+  }
+  return copy;
 }
 function rewritePhotoSrc(value) {
   const match = String(value || "").match(/^\/api\/photo\?id=([a-z0-9-]+)$/i);
@@ -1202,13 +1242,7 @@ async function handler(req) {
   if (path.endsWith("/menu") && req.method === "GET") {
     const menu = await store.get("menu", { type: "json" });
     if (!menu) return new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
-    if (menu.home && Array.isArray(menu.home.media)) {
-      menu.home.media = menu.home.media.map(function(row) {
-        if (!row) return row;
-        return Object.assign({}, row, { src: rewriteHomeMediaSrc(row.src, row.type) });
-      });
-    }
-    return json(menu);
+    return json(presentMenu(menu));
   }
   if (path.endsWith("/menu") && req.method === "PUT") {
     const gate = authorized(req);
@@ -1307,7 +1341,7 @@ async function handler(req) {
     return json({
       id: stored,
       type: kind.type,
-      src: staticHomeSrc(stored, kind.type, kind.contentType),
+      src: kind.type === "video" ? staticHomeSrc(stored, kind.type, kind.contentType) : "/api/home-media?id=" + stored,
       github
     });
   }

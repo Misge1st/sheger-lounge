@@ -128,6 +128,55 @@ def clean_home(home):
     return {"media": media}
 
 
+def arrange_food(food):
+    kept = []
+    moved = None
+    for item in food:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or "").lower()
+        item_id = str(item.get("id") or "")
+        if item_id == "spring-roll" or name == "spring roll":
+            continue
+        if item_id == "special-yetsom" or item.get("name") == "Special Yetsom Firfir":
+            item["category"] = "Fasting"
+            moved = item
+        else:
+            kept.append(item)
+    if moved:
+        kept.append(moved)
+    return kept
+
+
+def public_home_src(src, kind):
+    text = str(src or "")
+    api = re.fullmatch(r"/api/home-media\?id=([a-z0-9-]{1,60})", text)
+    file = re.fullmatch(r"home-media/([a-z0-9-]{1,60})\.(jpg|jpeg|png|mp4|webm)", text, re.I)
+    item_id = api.group(1) if api else (file.group(1) if file else "")
+    if not item_id:
+        return text
+    if kind == "video":
+        if file and file.group(2).lower() in ("mp4", "webm"):
+            return "home-media/%s.%s" % (item_id, file.group(2).lower())
+        return "home-media/%s.mp4" % item_id
+    return "/api/home-media?id=" + item_id
+
+
+def present_menu(menu):
+    if not isinstance(menu, dict):
+        return menu
+    copy = json.loads(json.dumps(menu))
+    if isinstance(copy.get("food"), list):
+        copy["food"] = arrange_food(copy["food"])
+    home = copy.get("home") if isinstance(copy.get("home"), dict) else None
+    rows = home.get("media") if home else None
+    if isinstance(rows, list):
+        for row in rows:
+            if isinstance(row, dict):
+                row["src"] = public_home_src(row.get("src"), row.get("type"))
+    return copy
+
+
 def media_kind(raw):
     if not raw or len(raw) < 12:
         return None
@@ -256,6 +305,7 @@ def clean_menu(body):
     address = clean_text(info_in.get("address"), 180)
     if not address:
         raise ValueError("Add the address.")
+    food = arrange_food(food)
     unique_ids(food)
     unique_ids(drinks)
     fee = clean_price(info_in.get("deliveryFee") if info_in.get("deliveryFee") is not None else "100") or "100"
@@ -421,7 +471,7 @@ class Handler(SimpleHTTPRequestHandler):
                 self.end_headers()
                 return
             with open(MENU_FILE, encoding="utf-8") as handle:
-                self._json(200, json.load(handle))
+                self._json(200, present_menu(json.load(handle)))
             return
         if path == "/api/home-media":
             self.serve_home_media()
@@ -637,7 +687,7 @@ class Handler(SimpleHTTPRequestHandler):
         self._json(200, {
             "id": media_id,
             "type": kind[0],
-            "src": "home-media/" + filename,
+            "src": ("/api/home-media?id=" + media_id) if kind[0] == "photo" else ("home-media/" + filename),
         })
 
     def save_rating(self):

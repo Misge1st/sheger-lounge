@@ -268,10 +268,31 @@
     });
   }
 
+  function payPhones() {
+    var info = (window.SHEGER_MENU && window.SHEGER_MENU.info) || {};
+    var phones = Array.isArray(info.phones) && info.phones.length ? info.phones : ["0909499994", "096 382 4782"];
+    return phones.filter(Boolean).slice(0, 2);
+  }
+
+  function paintPayNote() {
+    var note = document.getElementById("pay-number");
+    if (!note) return;
+    var mobile = document.querySelector("input[name=payment][value=mobile]");
+    var on = !!(mobile && mobile.checked);
+    note.hidden = !on;
+    if (!on) return;
+    note.innerHTML = "Send the payment to " + payPhones().map(function (phone) {
+      var tel = String(phone).replace(/[^\d+]/g, "");
+      if (tel.charAt(0) === "0") tel = "+251" + tel.slice(1);
+      return "<a href='tel:" + esc(tel) + "'>" + esc(phone) + "</a>";
+    }).join(" or ") + ".";
+  }
+
   function bindMenu() {
     attachFoodButtons();
     attachDrinkButtons();
     paintFab();
+    paintPayNote();
   }
 
   function placeOrder(event) {
@@ -369,7 +390,13 @@
     if (button.dataset.act === "remove") setQty(row.key, 0);
   });
   var deliveryForm = document.getElementById("delivery-form");
-  if (deliveryForm) deliveryForm.addEventListener("submit", placeOrder);
+  if (deliveryForm) {
+    deliveryForm.addEventListener("submit", placeOrder);
+    deliveryForm.addEventListener("change", function (event) {
+      if (event.target && event.target.name === "payment") paintPayNote();
+    });
+    paintPayNote();
+  }
 
   window.ShegerOrder = { bindMenu: bindMenu, paintFab: paintFab };
   paintFab();

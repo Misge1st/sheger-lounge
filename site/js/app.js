@@ -783,10 +783,15 @@
 
   function resolveHomeSrc(item) {
     var src = item && item.src ? String(item.src) : "";
-    var match = src.match(/^\/api\/home-media\?id=([a-z0-9-]+)$/i);
-    if (!match) return src;
-    var ext = item.type === "video" ? ".mp4" : ".jpg";
-    return "home-media/" + match[1] + ext;
+    var api = src.match(/\/api\/home-media\?id=([a-z0-9-]+)/i);
+    var file = src.match(/^home-media\/([a-z0-9-]+)\.(jpg|jpeg|png|mp4|webm)$/i);
+    var id = (api && api[1]) || (file && file[1]) || "";
+    if (!id) return src;
+    if (item.type === "video") {
+      if (file && /\.(mp4|webm)$/i.test(file[2])) return "home-media/" + id + "." + file[2].toLowerCase();
+      return "home-media/" + id + ".mp4";
+    }
+    return "/api/home-media?id=" + id;
   }
 
   function thumbCacheKey(src) {

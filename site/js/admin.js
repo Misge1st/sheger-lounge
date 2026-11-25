@@ -9,7 +9,7 @@
     "Soft drinks": "Soft drinks, beer, and water"
   };
   var HELP = {
-    orders: "New orders need you. Press “I will make this” when you start cooking. Press “Order is finished” after you deliver it.",
+    orders: "New orders play a sound. Press “I will make this” when you start cooking. Press “Order is finished” after you deliver it.",
     food: "Change a price, hide a dish, or add a new food. Customers do not see it until you press the big button at the bottom.",
     drinks: "Change a drink price or hide a drink. Customers do not see it until you press the big button at the bottom.",
     home: "These photos and videos show on the website home page. After you add or delete one, press the big button at the bottom.",
@@ -30,6 +30,9 @@
   var loginAlertTitle = document.getElementById("login-alert-title");
   var loginAlertText = document.getElementById("login-alert-text");
   var ordersBadge = document.getElementById("orders-badge");
+  var knownPending = null;
+  var orderView = "open";
+  var STAFF_TITLE = document.title;
 
   function showStatus(text) {
     status.textContent = text;
@@ -46,9 +49,53 @@
   }
 
   function paymentLabel(value) {
-    if (value === "mobile") return "Mobile Payment";
+    if (value === "mobile") {
+      var phones = draft && draft.info && Array.isArray(draft.info.phones) ? draft.info.phones.filter(Boolean) : [];
+      if (!phones.length) phones = ["0909499994", "096 382 4782"];
+      return "Mobile Payment — " + phones.slice(0, 2).join(" or ");
+    }
     if (value === "other") return "Other";
     return "Cash on Delivery";
+  }
+
+  function armOrderAlerts() {
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!armOrderAlerts.ctx) armOrderAlerts.ctx = new Ctx();
+      if (armOrderAlerts.ctx.state === "suspended") armOrderAlerts.ctx.resume();
+    } catch (error) {}
+    if (window.Notification && Notification.permission === "default") {
+      Notification.requestPermission().catch(function () {});
+    }
+  }
+
+  function orderChime() {
+    try {
+      var ctx = armOrderAlerts.ctx;
+      if (ctx) {
+        var now = ctx.currentTime;
+        [880, 1175].forEach(function (freq, index) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.exponentialRampToValueAtTime(0.2, now + 0.02 + index * 0.16);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28 + index * 0.16);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + index * 0.16);
+          osc.stop(now + 0.32 + index * 0.16);
+        });
+      }
+    } catch (error) {}
+    if (window.Notification && Notification.permission === "granted" && document.hidden) {
+      try {
+        new Notification("New order", { body: "A customer just ordered from Elo." });
+      } catch (error) {}
+    }
+    document.title = "New order — Elo Restaurant";
   }
 
   function pendingCount(list) {
@@ -68,6 +115,11 @@
     } else {
       ordersBadge.hidden = true;
     }
+    if (knownPending !== null && count > knownPending) {
+      orderView = "open";
+      orderChime();
+    }
+    knownPending = count;
   }
 
   function refreshPending() {
@@ -559,14 +611,32 @@
   }
 
   function renderOrders() {
-    if (!orders.length) {
+    var openOrders = orders.filter(function (order) {
+      return order.status === "new" || order.status === "accepted";
+    });
+    var pastOrders = orders.filter(function (order) {
+      return order.status === "done" || order.status === "cancelled";
+    });
+    var bar = document.createElement("div");
+    bar.className = "row-actions";
+    var openBtn = button("Orders to make (" + openOrders.length + ")", "order-view", null, "open", orderView === "open" ? "" : "ghost");
+    var pastBtn = button("Finished and cancelled (" + pastOrders.length + ")", "order-view", null, "past", orderView === "past" ? "" : "ghost");
+    openBtn.setAttribute("aria-pressed", orderView === "open" ? "true" : "false");
+    pastBtn.setAttribute("aria-pressed", orderView === "past" ? "true" : "false");
+    bar.appendChild(openBtn);
+    bar.appendChild(pastBtn);
+    panel.appendChild(bar);
+    var showing = orderView === "past" ? pastOrders : openOrders;
+    if (!showing.length) {
       var empty = document.createElement("p");
       empty.className = "muted";
-      empty.textContent = "No orders yet. When a customer orders, it will show here.";
+      empty.textContent = orderView === "past"
+        ? "No finished orders yet."
+        : "No orders to make right now.";
       panel.appendChild(empty);
       return;
     }
-    orders.forEach(function (order) {
+    showing.forEach(function (order) {
       var card = document.createElement("article");
       card.className = "order-card" + (order.status === "new" ? " new" : "");
       var title = document.createElement("h3");
@@ -660,6 +730,15 @@
     if (!draft.home || !Array.isArray(draft.home.media)) draft.home = { media: [] };
   }
 
+  function homePreviewSrc(item) {
+    if (!item || item.type === "video") return (item && item.src) || "";
+    var src = String(item.src || "");
+    var api = src.match(/\/api\/home-media\?id=([a-z0-9-]+)/i);
+    var file = src.match(/^home-media\/([a-z0-9-]+)\.(jpg|jpeg|png)$/i);
+    var id = (api && api[1]) || (file && file[1]) || "";
+    return id ? "/api/home-media?id=" + id : src;
+  }
+
   function renderHome() {
     ensureHome();
     var note = document.createElement("p");
@@ -716,7 +795,7 @@
         preview.className = "preview home-preview";
       } else {
         preview = document.createElement("img");
-        preview.src = item.src;
+        preview.src = homePreviewSrc(item);
         preview.alt = item.caption || "";
         preview.className = "preview home-preview";
       }
@@ -887,6 +966,11 @@
     var action = node.dataset.action;
     var kind = node.dataset.kind || (editing && editing.kind) || tab;
     var index = node.dataset.index != null ? Number(node.dataset.index) : (editing ? editing.index : -1);
+    if (action === "order-view") {
+      orderView = kind === "past" ? "past" : "open";
+      render();
+      return;
+    }
     if (action === "order-status") {
       setOrderStatus(index, kind);
       return;
@@ -1100,6 +1184,7 @@
 
   document.getElementById("login-form").addEventListener("submit", function (event) {
     event.preventDefault();
+    armOrderAlerts();
     var box = document.getElementById("login-error");
     box.textContent = "";
     signIn(document.getElementById("password").value, true).catch(function (error) {
@@ -1114,11 +1199,14 @@
     });
   }
   refreshPending();
+  document.addEventListener("pointerdown", function () { armOrderAlerts(); }, { once: true });
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) document.title = STAFF_TITLE;
+  });
   setInterval(function () {
     if (password) loadOrders().then(function () {
-      paintPending(pendingCount(orders));
       if (tab === "orders") render();
     }).catch(function () {});
     else refreshPending();
-  }, 15000);
+  }, 10000);
 })();

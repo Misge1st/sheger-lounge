@@ -1319,6 +1319,16 @@
     background: rgba(184, 74, 39, 0.06);
   }
   .pay input { width: 20px; min-height: 0; accent-color: var(--terracotta); }
+  .pay-note {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    background: rgba(184, 74, 39, 0.08);
+    border: 1px solid rgba(184, 74, 39, 0.35);
+    font-size: 16px;
+    line-height: 1.45;
+  }
+  .pay-note[hidden] { display: none; }
+  .pay-note a { font-weight: 700; }
   .loc-box {
     margin: 16px 0; padding: 16px;
     border: 1px solid var(--gold-line);
@@ -1586,8 +1596,10 @@
   html[data-theme="dark"] #delivery-form textarea,
   html[data-theme="dark"] .rate-box textarea,
   html[data-theme="dark"] .pay label,
+  html[data-theme="dark"] .pay-note,
   html[data-theme="dark"] .loc-box,
   html[data-theme="dark"] .plate > .no-photo { background: #2A221C; }
+  html[data-theme="dark"] .pay-note a { color: #F6EFE6; }
   html[data-theme="dark"] .book-switch button,
   html[data-theme="dark"] form.search input,
   html[data-theme="dark"] form.search button,
